@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TRUSTMESH — AI-Powered Personal Digital Trust & Scam Intelligence Platform. Analyze suspicious messages and URLs to detect potential fraud indicators.">
+    <title>TRUSTMESH — Your Digital Trust Layer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Top Navigation / Brand Header -->
+    <header class="app-header">
+        <div class="header-container">
+            <div class="brand-group">
+                <div class="brand-logo" aria-hidden="true">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        <path d="M9 12l2 2 4-4"/>
+                    </svg>
+                </div>
+                <div class="brand-meta">
+                    <h1 class="brand-name">TRUSTMESH</h1>
+                    <span class="brand-tagline">YOUR DIGITAL TRUST LAYER</span>
+                </div>
+            </div>
+            <div class="header-badge">
+                <span class="status-pulse" aria-hidden="true"></span>
+                <span>Rule-Based Engine v1.0</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-container">
+        <!-- Hero Section -->
+        <section class="hero-section" aria-labelledby="hero-title">
+            <div class="hero-pill">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                <span>Scam & Phishing Analysis Engine</span>
+            </div>
+            <h2 id="hero-title" class="hero-heading">Not everything online is what it seems.</h2>
+            <p class="hero-description">Analyze suspicious messages and links to uncover warning signs before you act.</p>
+        </section>
+
+        <!-- Message Analyzer Card -->
+        <section class="analyzer-section" aria-labelledby="analyzer-card-title">
+            <div class="analyzer-card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <label for="message-input" id="analyzer-card-title" class="card-label">WHAT DO YOU WANT TO CHECK?</label>
+                        <p class="card-sublabel">Paste an SMS, email, chat message, or web link to inspect for known manipulation heuristics.</p>
+                    </div>
+                    <div class="quick-samples" aria-label="Demo sample inputs">
+                        <span class="samples-label">Viva Demos:</span>
+                        <button type="button" class="sample-chip" data-sample="urgent-fee">Urgent Payment</button>
+                        <button type="button" class="sample-chip" data-sample="sensitive-otp">OTP Request</button>
+                        <button type="button" class="sample-chip" data-sample="insecure-url">HTTP Link</button>
+                        <button type="button" class="sample-chip" data-sample="safe-msg">Safe Message</button>
+                    </div>
+                </div>
+
+                <!-- Input Form -->
+                <form id="analyze-form" novalidate>
+                    <div class="textarea-wrapper">
+                        <textarea
+                            id="message-input"
+                            name="text"
+                            rows="6"
+                            maxlength="5000"
+                            placeholder="Paste a suspicious message or URL here..."
+                            aria-describedby="char-guidance"
+                            spellcheck="false"
+                            required
+                        ></textarea>
+                    </div>
+
+                    <div class="analyzer-controls">
+                        <div id="char-guidance" class="char-counter" aria-live="polite">
+                            <span id="char-count">0</span> / 5,000 characters
+                        </div>
+                        <div class="button-group">
+                            <button type="button" id="clear-btn" class="secondary-btn" title="Clear text area">
+                                Clear
+                            </button>
+                            <button type="submit" id="analyze-btn" class="primary-btn">
+                                <span class="btn-spinner" id="btn-spinner" aria-hidden="true"></span>
+                                <span class="btn-icon" id="btn-icon" aria-hidden="true">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="11" cy="11" r="8"/>
+                                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                                    </svg>
+                                </span>
+                                <span id="btn-text">Analyze Interaction</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Accessible Error Message Container -->
+                <div id="error-banner" class="alert-banner alert-error" role="alert" aria-live="assertive" hidden>
+                    <div class="alert-icon" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="8" x2="12" y2="12"/>
+                            <line x1="12" y1="16" x2="12.01" y2="16"/>
+                        </svg>
+                    </div>
+                    <div class="alert-content">
+                        <strong class="alert-title">Analysis Request Error</strong>
+                        <p id="error-message" class="alert-text"></p>
+                    </div>
+                    <button type="button" id="close-error-btn" class="alert-close-btn" aria-label="Dismiss error">
+                        &times;
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results Section (Revealed ONLY after receiving a valid backend response) -->
+        <section id="results-section" class="results-section" aria-labelledby="results-title" hidden>
+            <div class="results-card">
+                <div class="results-header">
+                    <div class="results-header-left">
+                        <span class="results-badge-tag">Analysis Completed</span>
+                        <h3 id="results-title" class="results-title">Interaction Risk Assessment</h3>
+                    </div>
+                    <div class="results-meta-pill" id="urls-detected-pill">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                        </svg>
+                        <span id="urls-count-text">0 URLs Identified</span>
+                    </div>
+                </div>
+
+                <!-- Score and Risk Meter Display -->
+                <div class="score-display-panel">
+                    <div class="score-summary">
+                        <div class="score-number-group">
+                            <span class="score-value" id="risk-score">0</span>
+                            <span class="score-max">/ 100</span>
+                        </div>
+                        <div class="score-status-group">
+                            <span class="risk-level-badge" id="risk-level">Lower detected risk</span>
+                            <span class="score-caption">Preliminary Risk Score</span>
+                        </div>
+                    </div>
+
+                    <!-- Visual Risk Meter Bar -->
+                    <div class="meter-wrapper">
+                        <div class="meter-track" role="progressbar" id="risk-progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Calculated risk score">
+                            <div class="meter-fill" id="meter-fill" style="width: 0%;"></div>
+                        </div>
+                        <div class="meter-legend" aria-hidden="true">
+                            <span class="legend-step legend-low">Lower Risk (0-29)</span>
+                            <span class="legend-step legend-med">Suspicious (30-59)</span>
+                            <span class="legend-step legend-high">High Risk (60-100)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analysis Findings -->
+                <div class="results-grid">
+                    <div class="grid-card findings-card">
+                        <div class="grid-card-header">
+                            <div class="grid-icon warning-icon" aria-hidden="true">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                                    <line x1="12" y1="9" x2="12" y2="13"/>
+                                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                                </svg>
+                            </div>
+                            <h4 class="grid-card-title">Detected Warning Signs</h4>
+                        </div>
+                        <ul id="findings-list" class="findings-list">
+                            <!-- Populated safely via JavaScript textContent -->
+                        </ul>
+                    </div>
+
+                    <!-- Recommended Action -->
+                    <div class="grid-card action-card">
+                        <div class="grid-card-header">
+                            <div class="grid-icon action-icon" aria-hidden="true">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                </svg>
+                            </div>
+                            <h4 class="grid-card-title">Recommended Next Action</h4>
+                        </div>
+                        <p id="recommendation-text" class="recommendation-text">
+                            <!-- Populated safely via JavaScript textContent -->
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Assessment Limitations Disclaimer -->
+                <div class="disclaimer-banner">
+                    <div class="disclaimer-icon" aria-hidden="true">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="16" x2="12" y2="12"/>
+                            <line x1="12" y1="8" x2="12.01" y2="8"/>
+                        </svg>
+                    </div>
+                    <p id="disclaimer-text" class="disclaimer-text">
+                        This preliminary rule-based assessment cannot guarantee that content is safe or fraudulent.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- History & Intelligence Dashboard Section (Phase 2) -->
+        <section class="history-section" id="history-section" aria-labelledby="history-title">
+            <div class="history-card">
+                <div class="history-header">
+                    <div class="history-title-group">
+                        <span class="history-badge-tag">Platform Telemetry</span>
+                        <h3 id="history-title" class="history-title">YOUR DIGITAL TRUST HISTORY</h3>
+                        <p class="history-subtitle">Local database audit log of interactions analyzed by the rule-based engine.</p>
+                    </div>
+                    <div class="history-controls">
+                        <button type="button" id="refresh-history-btn" class="secondary-btn" title="Refresh history and analytics">
+                            <span class="btn-spinner" id="refresh-spinner" aria-hidden="true"></span>
+                            <span class="btn-icon" id="refresh-icon" aria-hidden="true">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="23 4 23 10 17 10"></polyline>
+                                    <polyline points="1 20 1 14 7 14"></polyline>
+                                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                                </svg>
+                            </span>
+                            <span>Refresh History</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Aggregated Analytics Metrics Bar -->
+                <div class="analytics-grid" id="analytics-grid" aria-label="Platform scan metrics">
+                    <div class="stat-card">
+                        <span class="stat-label">Total Analyses</span>
+                        <span class="stat-value" id="stat-total">0</span>
+                        <span class="stat-meta">Recorded in SQLite</span>
+                    </div>
+                    <div class="stat-card stat-high">
+                        <span class="stat-label">High Risk</span>
+                        <span class="stat-value" id="stat-high">0</span>
+                        <span class="stat-meta">Score 60–100</span>
+                    </div>
+                    <div class="stat-card stat-med">
+                        <span class="stat-label">Suspicious</span>
+                        <span class="stat-value" id="stat-med">0</span>
+                        <span class="stat-meta">Score 30–59</span>
+                    </div>
+                    <div class="stat-card stat-low">
+                        <span class="stat-label">Lower Risk</span>
+                        <span class="stat-value" id="stat-low">0</span>
+                        <span class="stat-meta">Score 0–29</span>
+                    </div>
+                    <div class="stat-card stat-avg">
+                        <span class="stat-label">Average Score</span>
+                        <span class="stat-value" id="stat-avg">0.0</span>
+                        <span class="stat-meta">Out of 100</span>
+                    </div>
+                </div>
+
+                <!-- History Error Banner -->
+                <div id="history-error-banner" class="alert-banner alert-error" role="alert" hidden>
+                    <div class="alert-icon" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="8" x2="12" y2="12"/>
+                            <line x1="12" y1="16" x2="12.01" y2="16"/>
+                        </svg>
+                    </div>
+                    <div class="alert-content">
+                        <strong class="alert-title">History Error</strong>
+                        <p id="history-error-message" class="alert-text"></p>
+                    </div>
+                </div>
+
+                <!-- History Table / Records Container -->
+                <div class="history-table-wrapper" id="history-table-wrapper">
+                    <div class="history-loading" id="history-loading" hidden>
+                        <span class="btn-spinner" style="display:inline-block;" aria-hidden="true"></span>
+                        <span>Loading analysis history...</span>
+                    </div>
+
+                    <div class="history-empty" id="history-empty" hidden>
+                        <div class="empty-icon" aria-hidden="true">
+                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                        </div>
+                        <h4 class="empty-title">No analysis history recorded yet</h4>
+                        <p class="empty-desc">Submit a message or URL above to generate your first incident and record it in the database.</p>
+                    </div>
+
+                    <table class="history-table" id="history-table" aria-label="Recent interaction assessments">
+                        <thead>
+                            <tr>
+                                <th scope="col">Incident ID</th>
+                                <th scope="col">Date & Time</th>
+                                <th scope="col">Type</th>
+                                <th scope="col">Risk Level</th>
+                                <th scope="col">Score</th>
+                                <th scope="col">Signals</th>
+                                <th scope="col">Inspection</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-tbody">
+                            <!-- Populated safely via JavaScript textContent -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Top Detected Signals Bar (Aggregated from DB) -->
+                <div class="top-signals-panel" id="top-signals-panel">
+                    <h4 class="top-signals-title">Most Common Warning Signals Detected</h4>
+                    <div class="top-signals-chips" id="top-signals-chips">
+                        <!-- Populated safely via JavaScript textContent -->
+                    </div>
+                </div>
+
+                <!-- Privacy & Storage Notice for History -->
+                <div class="history-privacy-banner">
+                    <div class="privacy-icon" aria-hidden="true">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                    </div>
+                    <p class="privacy-text">
+                        <strong>Privacy-Preserving Storage:</strong> Only incident IDs, timestamps, calculated risk scores, and cataloged signal types are stored in SQLite. Raw messages and original URLs are strictly discarded to safeguard personal privacy.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Safe Signal Inspection Modal (Phase 2) -->
+        <dialog id="signal-modal" class="signal-modal" aria-labelledby="modal-title">
+            <div class="modal-card">
+                <div class="modal-header">
+                    <div class="modal-title-group">
+                        <span class="modal-badge-tag" id="modal-incident-tag">Incident #</span>
+                        <h3 id="modal-title" class="modal-title">Detected Signal Breakdown</h3>
+                    </div>
+                    <button type="button" id="modal-close-btn" class="modal-close-btn" aria-label="Close dialog">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="modal-summary">
+                        <div class="modal-score-col">
+                            <span class="modal-label">Risk Assessment</span>
+                            <div class="modal-score-flex">
+                                <span class="modal-value" id="modal-risk-score">0 / 100</span>
+                                <span class="risk-level-badge" id="modal-risk-level">Lower risk</span>
+                            </div>
+                        </div>
+                        <div class="modal-type-col">
+                            <span class="modal-label">Content Classification</span>
+                            <span class="modal-meta-type" id="modal-content-type">message</span>
+                        </div>
+                    </div>
+                    <div class="modal-section-title">Associated Warning Signals (M:N Relationship)</div>
+                    <ul class="modal-signals-list" id="modal-signals-list">
+                        <!-- Populated safely via JavaScript textContent -->
+                    </ul>
+                    <div class="modal-section-title">Stored Recommendation</div>
+                    <p class="modal-recommendation" id="modal-recommendation"></p>
+                </div>
+            </div>
+        </dialog>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+        <div class="footer-container">
+            <div class="footer-meta">
+                <span class="footer-brand">TRUSTMESH</span>
+                <span class="footer-bullet">&bull;</span>
+                <span class="footer-subtitle">A student cybersecurity project</span>
+            </div>
+            <p class="privacy-notice">
+                <strong>Privacy Notice:</strong> Analysis is performed strictly in memory and discarded immediately. Never enter real passwords, one-time passwords (OTPs), personal identification numbers, or confidential financial credentials.
+            </p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
