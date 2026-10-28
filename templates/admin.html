@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TRUSTMESH Security & Administration Console">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Administration Console — TRUSTMESH</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Top Navigation -->
+    <header class="app-header">
+        <div class="header-container">
+            <div class="brand-group">
+                <a href="{{ url_for('index') }}" class="brand-link" title="Return to Home">
+                    <div class="brand-logo" aria-hidden="true">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            <path d="M9 12l2 2 4-4"/>
+                        </svg>
+                    </div>
+                    <div class="brand-meta">
+                        <span class="brand-name">TRUSTMESH</span>
+                        <span class="brand-tagline">SECURITY ADMIN CONSOLE</span>
+                    </div>
+                </a>
+            </div>
+            <div class="header-nav">
+                <a href="{{ url_for('index') }}" class="nav-link">Main Portal</a>
+                <a href="{{ url_for('dashboard') }}" class="nav-link">User Dashboard</a>
+                <span class="user-greeting">Admin: <strong>{{ current_user.display_name }}</strong></span>
+                <form action="{{ url_for('logout') }}" method="POST" class="inline-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="logout-btn">Sign Out</button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <!-- Admin Hero -->
+        <section class="admin-header-section">
+            <div class="hero-pill">
+                <span class="status-pulse" aria-hidden="true"></span>
+                <span>Role: System Administrator (RBAC Enforced)</span>
+            </div>
+            <h2 class="hero-heading">Security Telemetry & Account Management</h2>
+            <p class="hero-description">Audit logs, platform volume, and user account status. No plaintext user messages are stored or accessible.</p>
+        </section>
+
+        <!-- Admin Overview Metrics -->
+        <section class="analytics-grid" aria-label="System Metrics">
+            <div class="stat-card">
+                <span class="stat-label">Registered Accounts</span>
+                <span class="stat-value">{{ overview.total_registered_users }}</span>
+                <span class="stat-meta">Active student accounts</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Total System Scans</span>
+                <span class="stat-value">{{ overview.total_incidents }}</span>
+                <span class="stat-meta">All-time evaluations</span>
+            </div>
+            <div class="stat-card stat-high">
+                <span class="stat-label">High Risk Incidents</span>
+                <span class="stat-value">{{ overview.analytics.high_risk_count }}</span>
+                <span class="stat-meta">Score 60–100</span>
+            </div>
+            <div class="stat-card stat-med">
+                <span class="stat-label">Suspicious Incidents</span>
+                <span class="stat-value">{{ overview.analytics.suspicious_count }}</span>
+                <span class="stat-meta">Score 30–59</span>
+            </div>
+            <div class="stat-card stat-avg">
+                <span class="stat-label">Average Risk Score</span>
+                <span class="stat-value">{{ overview.analytics.average_score }}</span>
+                <span class="stat-meta">Platform average</span>
+            </div>
+        </section>
+
+        <!-- User Accounts Table -->
+        <section class="admin-section">
+            <div class="admin-card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="history-badge-tag">Access Control</span>
+                        <h3 class="history-title">Registered User Directory</h3>
+                        <p class="history-subtitle">Accounts provisioned in SQLite. Password hashes are never shown.</p>
+                    </div>
+                </div>
+
+                <div class="history-table-wrapper">
+                    <table class="history-table" aria-label="Registered users">
+                        <thead>
+                            <tr>
+                                <th scope="col">User ID</th>
+                                <th scope="col">Display Name</th>
+                                <th scope="col">Email Address</th>
+                                <th scope="col">Role</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Member Since</th>
+                                <th scope="col">Scans</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for u in users %}
+                            <tr>
+                                <td class="table-incident-id">#{{ u.user_id }}</td>
+                                <td><strong>{{ u.display_name }}</strong></td>
+                                <td>{{ u.email or 'N/A' }}</td>
+                                <td>
+                                    <span class="role-badge role-{{ u.role_name }}">{{ u.role_name }}</span>
+                                </td>
+                                <td>
+                                    <span class="status-badge status-{{ u.account_status|lower }}">{{ u.account_status }}</span>
+                                </td>
+                                <td>{{ u.created_at }}</td>
+                                <td>{{ u.incident_count }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center">No user accounts found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Audit Event Stream -->
+        <section class="admin-section">
+            <div class="admin-card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="history-badge-tag">Compliance & Auditing</span>
+                        <h3 class="history-title">Security Audit Event Stream</h3>
+                        <p class="history-subtitle">Logged authentication attempts, role changes, and database triggers.</p>
+                    </div>
+                </div>
+
+                <div class="history-table-wrapper">
+                    <table class="history-table" aria-label="Audit events">
+                        <thead>
+                            <tr>
+                                <th scope="col">Audit ID</th>
+                                <th scope="col">Timestamp</th>
+                                <th scope="col">Event Type</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">User Identifier</th>
+                                <th scope="col">Safe Event Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for a in audit_logs %}
+                            <tr>
+                                <td class="table-incident-id">#{{ a.audit_id }}</td>
+                                <td>{{ a.created_at }}</td>
+                                <td>
+                                    <span class="event-badge">{{ a.event_type }}</span>
+                                </td>
+                                <td>
+                                    <span class="audit-status audit-{{ a.event_status|lower }}">{{ a.event_status }}</span>
+                                </td>
+                                <td>{{ a.user_identifier }}</td>
+                                <td>{{ a.details or '-' }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center">No audit records found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+        <div class="footer-container">
+            <div class="footer-meta">
+                <span class="footer-brand">TRUSTMESH</span>
+                <span class="footer-bullet">&bull;</span>
+                <span class="footer-subtitle">Admin Console (Phase 3)</span>
+            </div>
+            <p class="privacy-notice">
+                <strong>Administrative Access Policy:</strong> Administrators can monitor system health, volume metrics, and user status. In compliance with strict privacy standards, raw submitted message contents are discarded and are inaccessible to administrators.
+            </p>
+        </div>
+    </footer>
+</body>
+</html>

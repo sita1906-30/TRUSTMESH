@@ -327,6 +327,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: { 'Accept': 'application/json' }
             });
 
+            if (response.status === 401) {
+                if (historyEmpty) {
+                    historyEmpty.hidden = false;
+                    const emptyTitle = historyEmpty.querySelector('.empty-title');
+                    const emptyDesc = historyEmpty.querySelector('.empty-desc');
+                    if (emptyTitle) emptyTitle.textContent = 'Personal History Requires Sign In';
+                    if (emptyDesc) emptyDesc.textContent = 'Sign in or create an account to record your evaluations in your personal digital trust history.';
+                }
+                if (historyTable) historyTable.hidden = true;
+                return;
+            }
+
             if (!response.ok) {
                 throw new Error(`History query failed with status: ${response.status}`);
             }
@@ -565,13 +577,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         setLoading(true);
 
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        const reqHeaders = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        };
+        if (csrfToken) {
+            reqHeaders['X-CSRFToken'] = csrfToken;
+        }
+
         try {
             const response = await fetch('/analyze', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
+                headers: reqHeaders,
                 body: JSON.stringify({ text: rawText })
             });
 

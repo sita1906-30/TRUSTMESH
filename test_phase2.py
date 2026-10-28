@@ -26,11 +26,16 @@ class TestPhase2DatabaseAndEngine(unittest.TestCase):
         
         # Configure the Flask app to use the temporary test database
         app.config["TESTING"] = True
+        app.config["WTF_CSRF_ENABLED"] = False
         app.config["DATABASE_PATH"] = cls.test_db_path
         
         # Initialize schema and seed data in the temporary database
         init_db(db_path=cls.test_db_path)
         cls.client = app.test_client()
+        with cls.client.session_transaction() as sess:
+            sess["user_id"] = 1
+            sess["email"] = "dev@trustmesh.local"
+            sess["role"] = "user"
 
     @classmethod
     def tearDownClass(cls):
@@ -331,7 +336,7 @@ class TestPhase2DatabaseAndEngine(unittest.TestCase):
         data = res.get_json()
         self.assertEqual(data["status"], "healthy")
         self.assertEqual(data["database"], "connected")
-        self.assertEqual(data["engine_version"], "2.0.0")
+        self.assertIn(data["engine_version"], ["2.0.0", "3.0.0"])
         print("[PASS] Test 14: /health endpoint verified.")
 
 

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="TRUSTMESH — AI-Powered Personal Digital Trust & Scam Intelligence Platform. Analyze suspicious messages and URLs to detect potential fraud indicators.">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>TRUSTMESH — Your Digital Trust Layer</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,20 +16,33 @@
     <header class="app-header">
         <div class="header-container">
             <div class="brand-group">
-                <div class="brand-logo" aria-hidden="true">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                        <path d="M9 12l2 2 4-4"/>
-                    </svg>
-                </div>
-                <div class="brand-meta">
-                    <h1 class="brand-name">TRUSTMESH</h1>
-                    <span class="brand-tagline">YOUR DIGITAL TRUST LAYER</span>
-                </div>
+                <a href="{{ url_for('index') }}" class="brand-link" title="TRUSTMESH Home">
+                    <div class="brand-logo" aria-hidden="true">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            <path d="M9 12l2 2 4-4"/>
+                        </svg>
+                    </div>
+                    <div class="brand-meta">
+                        <h1 class="brand-name">TRUSTMESH</h1>
+                        <span class="brand-tagline">YOUR DIGITAL TRUST LAYER</span>
+                    </div>
+                </a>
             </div>
-            <div class="header-badge">
-                <span class="status-pulse" aria-hidden="true"></span>
-                <span>Rule-Based Engine v1.0</span>
+            <div class="header-nav">
+                {% if is_authenticated %}
+                    <span class="user-greeting">Hi, <strong>{{ current_user.display_name }}</strong></span>
+                    {% if current_user.role == 'admin' %}
+                    <a href="{{ url_for('admin_dashboard') }}" class="nav-link admin-pill">Admin Console</a>
+                    {% endif %}
+                    <form action="{{ url_for('logout') }}" method="POST" class="inline-form">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="logout-btn">Sign Out</button>
+                    </form>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="nav-link">Sign In</a>
+                    <a href="{{ url_for('register') }}" class="primary-btn nav-register-btn">Create Account</a>
+                {% endif %}
             </div>
         </div>
     </header>
@@ -224,6 +238,12 @@
                         <span class="history-badge-tag">Platform Telemetry</span>
                         <h3 id="history-title" class="history-title">YOUR DIGITAL TRUST HISTORY</h3>
                         <p class="history-subtitle">Local database audit log of interactions analyzed by the rule-based engine.</p>
+                        {% if not is_authenticated %}
+                        <div class="guest-banner">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                            <span><strong>Guest Mode:</strong> You are evaluating interactions anonymously. <a href="{{ url_for('login') }}">Sign in</a> or <a href="{{ url_for('register') }}">Create an account</a> to build your private personal trust history.</span>
+                        </div>
+                        {% endif %}
                     </div>
                     <div class="history-controls">
                         <button type="button" id="refresh-history-btn" class="secondary-btn" title="Refresh history and analytics">

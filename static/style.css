@@ -1287,6 +1287,327 @@ button {
     line-height: 1.5;
 }
 
+/* ==========================================================================
+   Phase 3: Authentication, Navigation, RBAC, & Security Styles
+   ========================================================================== */
+
+/* Auth Layout */
+.auth-page {
+    min-height: 100vh;
+}
+
+.auth-container {
+    max-width: 480px;
+    padding: 3rem 1.25rem 5rem;
+}
+
+.auth-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-xl);
+    padding: 2.25rem;
+    box-shadow: var(--shadow-card);
+    animation: slideUp 0.3s ease-out;
+}
+
+.auth-card-header {
+    text-align: center;
+    margin-bottom: 1.75rem;
+}
+
+.auth-badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--mint-primary);
+    margin-bottom: 0.35rem;
+}
+
+.auth-title {
+    font-size: 1.625rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.02em;
+}
+
+.auth-subtitle {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-top: 0.35rem;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1.25rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.form-label {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--text-secondary);
+}
+
+.form-input {
+    width: 100%;
+    background: var(--bg-input);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 0.75rem 1rem;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 0.9375rem;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--mint-primary);
+    box-shadow: 0 0 0 3px var(--mint-glow);
+}
+
+.form-input::placeholder {
+    color: var(--text-muted);
+}
+
+.form-hint {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.auth-submit-btn {
+    width: 100%;
+    padding: 0.85rem;
+    font-size: 0.95rem;
+    margin-top: 0.5rem;
+}
+
+.auth-footer-links {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    display: flex;
+    justify-content: center;
+    gap: 0.35rem;
+}
+
+.auth-link {
+    color: var(--mint-primary);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.auth-link:hover {
+    text-decoration: underline;
+}
+
+/* Header Navigation & Auth Controls */
+.header-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+}
+
+.nav-link {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+.nav-link:hover {
+    color: var(--mint-primary);
+}
+
+.nav-register-btn {
+    padding: 0.45rem 1rem;
+    font-size: 0.8125rem;
+    box-shadow: none;
+}
+
+.user-greeting {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+}
+
+.user-greeting strong {
+    color: #ffffff;
+}
+
+.admin-pill {
+    background: rgba(245, 158, 11, 0.12);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    color: var(--risk-med);
+    padding: 0.3rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.admin-pill:hover {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fde68a;
+}
+
+.inline-form {
+    display: inline-flex;
+    margin: 0;
+}
+
+.logout-btn {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-muted);
+    padding: 0.35rem 0.75rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.logout-btn:hover {
+    background: var(--risk-high-bg);
+    border-color: var(--risk-high-border);
+    color: var(--risk-high);
+}
+
+/* Guest Mode Banner */
+.guest-banner {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: rgba(0, 240, 144, 0.06);
+    border: 1px solid var(--mint-border);
+    border-radius: var(--radius-md);
+    padding: 0.65rem 0.875rem;
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    margin-top: 0.75rem;
+}
+
+.guest-banner svg {
+    color: var(--mint-primary);
+    flex-shrink: 0;
+}
+
+.guest-banner a {
+    color: var(--mint-primary);
+    font-weight: 700;
+    text-decoration: underline;
+}
+
+/* Alert Success */
+.alert-success {
+    background: rgba(0, 240, 144, 0.1);
+    border: 1px solid var(--mint-border);
+    color: #a7f3d0;
+}
+
+.alert-success .alert-icon {
+    color: var(--mint-primary);
+}
+
+/* Admin Dashboard Elements */
+.admin-header-section {
+    text-align: center;
+    max-width: 760px;
+    margin: 0 auto 2.5rem;
+}
+
+.admin-section {
+    margin-top: 2.5rem;
+}
+
+.admin-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-xl);
+    padding: 2rem;
+    box-shadow: var(--shadow-card);
+}
+
+.role-badge {
+    display: inline-block;
+    padding: 0.2rem 0.55rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.role-admin {
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    color: var(--risk-med);
+}
+
+.role-user {
+    background: rgba(0, 240, 144, 0.1);
+    border: 1px solid var(--mint-border);
+    color: var(--mint-primary);
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.status-active {
+    color: var(--risk-low);
+}
+
+.status-suspended {
+    color: var(--risk-high);
+}
+
+.event-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    padding: 0.2rem 0.5rem;
+    border-radius: var(--radius-sm);
+    color: #38bdf8;
+}
+
+.audit-status {
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.audit-success { color: var(--risk-low); }
+.audit-failed, .audit-forbidden { color: var(--risk-high); }
+
+.error-code-badge {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: var(--mint-primary);
+    line-height: 1;
+    margin-bottom: 0.75rem;
+}
+
+.text-center { text-align: center; }
+.mt-4 { margin-top: 1.5rem; }
+.inline-btn { display: inline-flex; width: auto; margin: 0 0.35rem; }
+
 /* Responsive Media Queries */
 @media (max-width: 768px) {
     .header-container {

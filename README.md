@@ -1,351 +1,283 @@
 # TRUSTMESH — AI-Powered Personal Digital Trust & Scam Intelligence Platform
 
-**Phase 2: Improved Trust Analysis Engine + Relational SQL Database Integration**
+**Phase 3: Secure Authentication, Role-Based Access Control (RBAC) & Application Security**
 
 ---
 
 ## 1. Project Overview
 
-**Project Name:** TRUSTMESH  
-**Full Title:** AI-Powered Personal Digital Trust & Scam Intelligence Platform  
-**Developer:** Student, 2nd Year B.Tech Computer Science and Engineering (AI/ML)  
-**Academic Phase:** Phase 2 (Local Relational Database Integration & Threat Analytics)  
-**Target Environment:** Local Development (Prepared for future Azure Cloud Migration)
+* **Project Name:** TRUSTMESH
+* **Full Title:** AI-Powered Personal Digital Trust & Scam Intelligence Platform
+* **Academic Level:** 2nd Year B.Tech Computer Science and Engineering (AI/ML)
+* **Academic Phase:** Phase 3 (Authentication, RBAC, Session Management & Application Hardening)
+* **Target Environment:** Local Development on Windows (Prepared for future Azure Cloud Migration)
 
 ### Problem Statement
-Digital communication has made it increasingly challenging for individuals to distinguish authentic interactions from fraudulent attempts, phishing campaigns, deceptive payment solicitations, sensitive credential harvesting, and malicious URLs.
+Digital communications increasingly expose individuals to phishing campaigns, urgency-driven financial extortion, credential harvesting scams, and deceptive links. Everyday users lack the technical background to parse suspicious headers, analyze obfuscated IP domains, or identify deceptive social engineering triggers.
 
-**TRUSTMESH** functions as an accessible, explainable personal digital trust layer. It evaluates suspicious text messages and URLs, flags identifiable risk indicators, calculates a preliminary heuristic risk score (0–100), logs safe telemetry to a normalized local database, and presents actionable guidance to safeguard everyday users.
+**TRUSTMESH** functions as an explainable, privacy-preserving personal digital trust layer. It evaluates suspicious text messages and URLs, flags identifiable risk indicators, calculates a preliminary heuristic risk score (0–100), isolates personal scan histories through secure authentication and Role-Based Access Control (RBAC), protects state-changing browser actions with CSRF tokens, logs security audit events, and presents actionable guidance to safeguard everyday users.
 
-> **Important Academic & Legal Disclaimer:** TRUSTMESH provides a preliminary rule-based assessment and indicator breakdown. It does **not** guarantee whether any message or URL is completely safe or fraudulent.
+> **Academic & Legal Disclaimer:** TRUSTMESH provides a preliminary rule-based heuristic assessment and indicator breakdown. It does **not** guarantee whether any message or URL is completely safe or fraudulent. It is an educational assistive tool designed to promote digital hygiene and threat awareness.
 
 ---
 
-## 2. Phase 2 Features & Enhancements
+## 2. Phase 3 Architecture & Security Enhancements
 
-Building upon the Phase 1 web interface and rule engine, Phase 2 implements a robust persistence and telemetry layer:
+Building upon the Phase 1 heuristic engine and Phase 2 relational database, Phase 3 implements an enterprise-grade local application security model:
 
-1. **Normalized Relational SQLite Database:** Designed strictly to Third Normal Form (3NF) with 7 interconnected tables.
-2. **Automatic Database Lifecycle:** Self-initializing SQLite database stored in `instance/trustmesh.db` with zero manual configuration required.
-3. **Atomic Transactional Writes:** Saves each incident, risk assessment, and detected signals in a single atomic database transaction (`conn.commit()` / `conn.rollback()`).
-4. **Interactive Digital Trust History Dashboard:** Displays recent incident evaluations with score pills, content classifications, and signal counts without exposing raw user text.
-5. **Real-Time Platform Analytics Bar:** Real-time database aggregations (`COUNT`, `AVG`, `GROUP BY`) displaying total analyses, risk distributions, average score, and top detected warning indicators.
-6. **Detailed Signal Breakdown Inspection:** HTML5 dialog modal to safely inspect the specific warning signals and points awarded for any historical scan.
-7. **Database Triggers & Reporting Views:** Includes a dedicated SQLite audit trigger (`trg_audit_assessment_insert`) and a reporting view (`v_incident_summary`).
-8. **Privacy-Preserving Telemetry:** Raw submitted messages and URLs are **never** persisted to disk, database, or logs. Cryptographic SHA-256 fingerprinting is used for correlation.
+1. **User Registration & Validation:** Server-side input sanitization, RFC 5322 email regex verification, field length bounds, and duplicate email prevention.
+2. **Cryptographic Password Hashing:** Powered by Werkzeug's modern password hashing utility (salting and key-derivation via Scrypt/PBKDF2). Plaintext passwords are never stored or logged.
+3. **Session Management & Hardening:** Server-managed Flask sessions configured with `HttpOnly`, `SameSite=Lax`, lifetime expiration, and conditional `Secure` cookie flags.
+4. **Role-Based Access Control (RBAC):** Distinct `user` and `admin` roles enforced entirely on the backend via reusable `@login_required` and `@role_required("admin")` Python decorators.
+5. **User-Scoped Incident Privacy:** Authenticated users only see their own incident history and metrics. Anonymous guest scans are supported but isolated from user accounts.
+6. **Administrative Console:** Protected admin dashboard displaying platform-wide analytics, user account directory, and real-time security audit trails.
+7. **Cross-Site Request Forgery (CSRF) Protection:** Seamless integration of `Flask-WTF` (`CSRFProtect`) guarding HTML forms and AJAX/fetch JSON requests via `X-CSRFToken`.
+8. **Comprehensive HTTP Security Headers:** Enforces `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy: strict-origin-when-cross-origin`, and strict `Content-Security-Policy`.
+9. **Security Audit Logging:** Persistent recording of authentication successes, failed logins, logouts, registrations, and authorization violations in the SQLite `AUDIT_LOGS` table.
+10. **Idempotent Database Migration:** Non-destructive migration utility (`migrate_db()`) that safely extends existing Phase 2 SQLite databases without data loss.
 
 ---
 
 ## 3. Technology Stack
 
-Phase 2 remains 100% free and open-source, utilizing standard library modules and lightweight dependencies:
+Phase 3 is built entirely with free, open-source, and locally runnable technologies:
 
-| Component | Technology | Rationale |
+| Layer | Technology | Purpose & Architectural Decision |
 | :--- | :--- | :--- |
-| **Backend Framework** | Python 3.12+ / Flask 3.1+ | Lightweight, understandable WSGI microframework. |
-| **Database Engine** | SQLite 3 (via built-in `sqlite3`) | Zero-configuration, serverless, self-contained relational database. |
-| **Database Design** | Third Normal Form (3NF) SQL | Eliminates data redundancy and prepares schema for Azure SQL migration. |
-| **Frontend UI** | Semantic HTML5 | Accessible, structured markup with native `<dialog>` modals. |
-| **Styling** | Vanilla CSS3 | Dark navy (`#070b14`) & mint-green (`#00f090`) cybersecurity enterprise aesthetic. |
-| **Client Scripting** | Vanilla JavaScript (ES6) | Native `fetch()` async API, safe DOM rendering via `textContent` (Zero XSS). |
-| **Automated Testing** | Python `unittest` | Comprehensive unit and integration test suite with temporary test databases. |
+| **Backend Framework** | Python 3.12+ / Flask 3.1+ | Lightweight WSGI microframework offering complete control over middleware and routing. |
+| **Password Security** | Werkzeug (`generate_password_hash`, `check_password_hash`) | Industry-standard password salting and hashing using Scrypt / PBKDF2 HMAC-SHA256. |
+| **CSRF Defense** | Flask-WTF 1.2+ (`CSRFProtect`) | Synchronizer token pattern protecting forms and asynchronous JSON POST requests. |
+| **Database** | SQLite 3 (Normalized 3NF) | Serverless, zero-configuration ACID relational storage stored locally in `instance/trustmesh.db`. |
+| **Frontend UI** | Semantic HTML5 & Vanilla CSS3 | Modern dark navy (`#070b14`) & mint-green (`#00f090`) cybersecurity operations dashboard. |
+| **Client Logic** | Vanilla JavaScript (ES6) | Asynchronous `fetch()` API with CSRF token header injection and safe DOM updates via `textContent`. |
+| **Automated Testing** | Python `unittest` | 51 automated test cases verifying engine heuristics, SQL integrity, authentication, and RBAC. |
 
 ---
 
-## 4. Project Folder Structure
+## 4. Route Authorization Table
+
+Every route in TRUSTMESH is classified and enforced strictly on the server:
+
+| Method | Endpoint | Access Level | Description & Protection Mechanism |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/` | **Public** | Landing page & heuristic scanner interface. |
+| `GET` | `/register` | **Public** | User registration form (redirects to dashboard if already authenticated). |
+| `POST` | `/register` | **Public** | Creates user account with hashed password and CSRF token verification. |
+| `GET` | `/login` | **Public** | Login interface (redirects to dashboard if already authenticated). |
+| `POST` | `/login` | **Public** | Authenticates credentials, establishes session, logs audit event. |
+| `POST` | `/logout` | **Authenticated** | Clears session cookie, invalidates auth state, redirects to `/`. |
+| `GET` | `/dashboard` | **Authenticated (`user` / `admin`)** | Personal user dashboard with isolated history and scan telemetry. |
+| `POST` | `/analyze` | **Public / Authenticated** | Analyzes content; tags incident with authenticated `user_id` if logged in. |
+| `GET` | `/api/history` | **Authenticated (`user` / `admin`)** | Returns private incident history for the current session's `user_id` (401 if unauthenticated). |
+| `GET` | `/api/analytics` | **Public / Authenticated** | Returns user-scoped scan analytics if authenticated; platform totals if guest. |
+| `GET` | `/admin` | **Admin Only (`admin`)** | Admin management console (returns 403 Forbidden for standard users). |
+| `GET` | `/api/admin/users` | **Admin Only (`admin`)** | JSON user directory (omits password hashes and credentials). |
+| `GET` | `/api/admin/audit-logs`| **Admin Only (`admin`)** | JSON system security event stream. |
+| `GET` | `/health` | **Public** | Minimal service and database connectivity check. |
+
+---
+
+## 5. Security Architecture Deep Dive
+
+### A. Password Hashing (Werkzeug)
+Passwords are **never** stored in plaintext. When a user registers:
+1. The plaintext password and confirmation are checked for length (8–128 characters) and exact match.
+2. `generate_password_hash(password, method='scrypt')` generates a cryptographically secure random salt and runs an iterative key-derivation function.
+3. The stored string looks like `scrypt:32768:8:1$salt$hash`. Even if the SQLite file were compromised, the attacker cannot reverse the hash back into the user's password.
+4. During authentication, `check_password_hash(stored_hash, candidate_password)` securely compares the hashes in constant time to prevent timing attacks.
+
+### B. Session Management
+Flask uses cryptographically signed client-side cookies for session storage:
+* **`SECRET_KEY`:** Loaded securely from environment variables (`.env`). If not provided during development, a stable local fallback is used to prevent session invalidation on restart.
+* **`SESSION_COOKIE_HTTPONLY = True`:** Prevents client-side JavaScript from accessing `document.cookie`, mitigating credential theft via Cross-Site Scripting (XSS).
+* **`SESSION_COOKIE_SAMESITE = 'Lax'`:** Ensures cookies are not sent on cross-site subrequests (such as malicious image loads), protecting against Cross-Site Request Forgery.
+* **`SESSION_COOKIE_SECURE = False (Dev) / True (Prod)`:** Kept `False` for localhost HTTP development to ensure local sessions function properly; switched to `True` over HTTPS in production.
+* **Minimal Session Footprint:** Only non-sensitive identity markers (`user_id`, `email`, `display_name`, `role`) are stored in the session. Passwords and hashes are never placed in the session.
+
+### C. Role-Based Access Control (RBAC)
+TRUSTMESH defines two roles in the `ROLES` database table:
+* `user` (Role ID 1): Can scan messages, view their own private history, and view their own personal analytics.
+* `admin` (Role ID 2): Can access `/admin`, inspect the user accounts directory, and view security audit logs.
+
+Authorization is enforced on the server using custom Python decorators:
+```python
+@role_required("admin")
+def admin_dashboard():
+    # Enforced strictly on backend: checks session["role"] == "admin"
+```
+Client-side tampering (such as altering hidden inputs, query parameters, or localStorage) cannot elevate privileges because all role lookups occur from trusted server-side session state.
+
+### D. Cross-Site Request Forgery (CSRF) Protection
+* **HTML Forms:** Rendered with hidden CSRF tokens:
+  ```html
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  ```
+* **JavaScript Fetch Requests:** The frontend reads `<meta name="csrf-token" content="...">` and includes it in the `X-CSRFToken` HTTP header on all `POST` requests.
+* **Server Verification:** `Flask-WTF` validates the token against the user's session before passing control to route handlers. Missing or invalid tokens are immediately rejected with HTTP 400.
+
+### E. Security Headers
+Injected automatically into every HTTP response via `@app.after_request`:
+* `X-Content-Type-Options: nosniff` — Prevents browsers from MIME-sniffing response content types.
+* `X-Frame-Options: SAMEORIGIN` — Mitigates clickjacking attacks by forbidding external iframe embedding.
+* `Referrer-Policy: strict-origin-when-cross-origin` — Protects user privacy when navigating external links.
+* `Content-Security-Policy` — Restricts script execution, style sources, fonts, and forbids framing.
+
+### F. Audit Logging
+Every significant security event is recorded in the `AUDIT_LOGS` table:
+* `REGISTER_SUCCESS` — Account created with email.
+* `LOGIN_SUCCESS` — Successful user authentication.
+* `LOGIN_FAILED` — Failed login attempt (generic, without password logging).
+* `LOGOUT` — User ended their authenticated session.
+* `ACCESS_DENIED` — Unauthorized access attempt to administrative endpoints.
+
+---
+
+## 6. Project Structure
 
 ```
-TRUSTMESH/
+TRUST MESH/
 │
-├── app.py                  # Flask web backend, API endpoints, & detection engine
-├── database.py             # SQLite connection pooling, transactions, & analytical queries
-├── schema.sql              # Normalized 3NF DDL schema, view, indexes, trigger, & seed data
-├── test_phase2.py          # Phase 2 automated test suite (14 comprehensive test cases)
-├── test_engine.py          # Phase 1 verification test suite (8 test cases)
-├── requirements.txt        # Minimal Python dependencies (Flask)
-├── README.md               # Complete architecture, viva defense, & user manual
-├── .gitignore              # Excludes virtual environments, database files, & cache
+├── app.py                  # Flask web backend, RBAC decorators, CSRF & security headers
+├── database.py             # SQLite connection pooling, schema migration, & auth queries
+├── schema.sql              # Normalized 3NF SQL DDL schema, view, indexes, & triggers
+├── create_admin.py         # Administrative provisioning CLI utility
+├── test_phase3.py          # Phase 3 Security verification test suite (29 tests)
+├── test_phase2.py          # Phase 2 Database & engine test suite (14 tests)
+├── test_engine.py          # Phase 1 Heuristic engine test suite (8 tests)
+├── requirements.txt        # Python dependencies (Flask, Flask-WTF)
+├── .env.example            # Environment variable configuration template
+├── README.md               # Complete documentation & college viva defense guide
+├── .gitignore              # Excludes virtualenv, SQLite DB, cache, and .env
 │
 ├── instance/
-│   └── trustmesh.db        # Automatically initialized SQLite development database
+│   └── trustmesh.db        # Local SQLite database (auto-migrated)
 │
 ├── templates/
-│   └── index.html          # Frontend single-page application with history dashboard & modal
+│   ├── index.html          # Main application & heuristic scanner interface
+│   ├── login.html          # Authentication login page
+│   ├── register.html       # User account registration page
+│   ├── dashboard.html      # Personal telemetry & private history dashboard
+│   ├── admin.html          # Administrative console & security audit log viewer
+│   └── error.html          # Standardized security error display (400, 403, 404, 500)
 │
 └── static/
-    ├── style.css           # Vanilla CSS stylesheet (responsive cards, tables, & modals)
-    └── script.js           # Client controller for fetch API, DOM rendering, & polling
+    ├── style.css           # Responsive dark navy & mint-green design system
+    └── script.js           # Vanilla JavaScript async controller & CSRF handling
 ```
 
 ---
 
-## 5. Relational Database Design & Third Normal Form (3NF)
-
-The database schema comprises **7 related tables** designed to adhere to Third Normal Form (3NF):
-
-```
- ┌───────────────┐          ┌───────────────┐
- │     USERS     │◄──┐      │     ROLES     │
- └───────┬───────┘   │      └───────────────┘
-         │ 1:N       │
-         ▼           │
- ┌───────────────┐   │ 1:N
- │   INCIDENTS   │   │ (audit)
- └───────┬───────┘   │
-         │ 1:1       │
-         ▼           │
- ┌───────────────────────┐  │      ┌───────────────┐
- │    RISK_ASSESSMENTS   ├──┴─────►│  AUDIT_LOGS   │
- └───────────┬───────────┘         └───────────────┘
-             │ 1:N
-             ▼
- ┌───────────────────────┐
- │  ASSESSMENT_SIGNALS   │ (Junction / Bridge Table)
- └───────────┬───────────┘
-             │ N:1
-             ▼
- ┌───────────────────────┐
- │     RISK_SIGNALS      │ (Signals Catalog)
- └───────────────────────┘
-```
-
-### Table Definitions
-
-| Table Name | Primary Key | Foreign Keys | Functional Purpose |
-| :--- | :--- | :--- | :--- |
-| **`USERS`** | `user_id` | *None* | Represents application users or anonymous development sessions. |
-| **`ROLES`** | `role_id` | *None* | Stores role reference values (`user`, `admin`) for future authorization. |
-| **`INCIDENTS`** | `incident_id` | `user_id` &rarr; `USERS` | Logs an interaction event, content type, SHA-256 fingerprint, and status. |
-| **`RISK_ASSESSMENTS`** | `assessment_id` | `incident_id` &rarr; `INCIDENTS` | Stores the evaluated risk score (0–100), risk level, and recommendation. |
-| **`RISK_SIGNALS`** | `signal_id` | *None* | Normalized catalog of all detectable warning indicators and categories. |
-| **`ASSESSMENT_SIGNALS`**| `(assessment_id, signal_id)` | `assessment_id` &rarr; `RISK_ASSESSMENTS`<br>`signal_id` &rarr; `RISK_SIGNALS` | Resolves the Many-to-Many relationship between assessments and warning signals. |
-| **`AUDIT_LOGS`** | `audit_id` | `user_id` &rarr; `USERS` | Records non-sensitive security events triggered automatically by the database. |
-
----
-
-### Academic Explanation of 3NF Normalization (For College Viva)
-
-Examiners frequently ask students to defend database normalization. Here is the formal explanation:
-
-1. **What each table represents:** Each table has a single, well-defined entity or relationship. `USERS` models actor identity; `INCIDENTS` captures submission metadata; `RISK_ASSESSMENTS` isolates evaluation results; `RISK_SIGNALS` serves as a master catalog; and `ASSESSMENT_SIGNALS` represents the link between them.
-2. **Why Users and Incidents are separate:** Separating users from incidents respects First and Second Normal Forms. A user can submit multiple interactions over time (1:N relationship). Combining user profiles and incidents into a single table would cause repeated user details on every submission, creating update and deletion anomalies.
-3. **Why Risk Assessments are separate from Incidents:** An incident represents the *intake event* (timestamp, content classification, processing status), whereas an assessment represents the *analytical outcome* (score, level, engine version, recommendation). Separating them decouples event intake from evaluation, enabling future features such as re-evaluating an incident with a newer engine version without altering intake history.
-4. **Why Warning Indicators use a separate catalog (`RISK_SIGNALS`):** Storing signal names, categories, and descriptions directly inside assessment rows would cause massive text duplication across thousands of records. Normalizing them into a master catalog table (`RISK_SIGNALS`) means each signal is defined exactly once.
-5. **Why `ASSESSMENT_SIGNALS` resolves the Many-to-Many (M:N) relationship:** A single risk assessment can trigger multiple warning signals (e.g. Urgency AND Insecure HTTP). Conversely, a single warning signal (e.g. Urgency) can be detected across many different assessments. Relational databases cannot directly store arrays or multi-valued lists in columns without violating 1NF. `ASSESSMENT_SIGNALS` acts as an associative junction table with composite primary key `(assessment_id, signal_id)`.
-6. **How the design avoids unnecessary duplication (3NF achieved):** Every non-key attribute is non-transitively dependent exclusively on the primary key (*"The key, the whole key, and nothing but the key, so help me Codd"*). If a signal's descriptive text changes, it is updated in one place in `RISK_SIGNALS` without modifying millions of historical records.
-
----
-
-## 6. SQL Operations Implemented & Demonstrated
-
-### A. INSERT (Parameterized Transaction)
-In [`database.py`](file:///c:/Users/simran/OneDrive/Desktop/TRUST%20MESH/database.py#L90-L158), incidents, assessments, and signals are inserted using strictly parameterized `?` placeholders:
-```sql
-INSERT INTO INCIDENTS (user_id, content_type, content_fingerprint, processing_status)
-VALUES (?, ?, ?, 'COMPLETED');
-```
-
-### B. JOIN (Multi-Table Relational Queries)
-To display an incident's detected signals in the inspection modal, a relational join connects `ASSESSMENT_SIGNALS` to `RISK_SIGNALS`:
-```sql
-SELECT 
-    rs.signal_name,
-    rs.category,
-    rs.description,
-    asig.points_awarded
-FROM ASSESSMENT_SIGNALS asig
-JOIN RISK_SIGNALS rs ON asig.signal_id = rs.signal_id
-WHERE asig.assessment_id = ?
-ORDER BY asig.points_awarded DESC;
-```
-
-### C. SQL VIEW (`v_incident_summary`)
-Created in [`schema.sql`](file:///c:/Users/simran/OneDrive/Desktop/TRUST%20MESH/schema.sql#L91-L108) to provide a standardized, safe summary of incidents without exposing raw content:
-```sql
-CREATE VIEW IF NOT EXISTS v_incident_summary AS
-SELECT 
-    i.incident_id,
-    i.user_id,
-    i.content_type,
-    i.created_at AS incident_time,
-    ra.assessment_id,
-    ra.risk_score,
-    ra.risk_level,
-    ra.engine_version,
-    ra.recommendation,
-    COUNT(asig.signal_id) AS signal_count
-FROM INCIDENTS i
-JOIN RISK_ASSESSMENTS ra ON i.incident_id = ra.incident_id
-LEFT JOIN ASSESSMENT_SIGNALS asig ON ra.assessment_id = asig.assessment_id
-GROUP BY i.incident_id, ra.assessment_id;
-```
-
-### D. AGGREGATIONS (`COUNT`, `AVG`, `GROUP BY`)
-Used in [`database.py:get_analytics()`](file:///c:/Users/simran/OneDrive/Desktop/TRUST%20MESH/database.py#L225-L290) to compute platform metrics:
-```sql
--- Frequency of warning indicators across all scans
-SELECT 
-    rs.signal_name,
-    rs.category,
-    COUNT(asig.assessment_id) AS frequency
-FROM RISK_SIGNALS rs
-JOIN ASSESSMENT_SIGNALS asig ON rs.signal_id = asig.signal_id
-GROUP BY rs.signal_id
-ORDER BY frequency DESC
-LIMIT 5;
-
--- Average risk score
-SELECT COALESCE(ROUND(AVG(risk_score), 1), 0.0) AS avg_score FROM RISK_ASSESSMENTS;
-```
-
-### E. INDEXES
-Created to optimize sorting and foreign key lookups:
-```sql
-CREATE INDEX IF NOT EXISTS idx_incidents_created_at ON INCIDENTS(created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_risk_assessments_level ON RISK_ASSESSMENTS(risk_level);
-CREATE INDEX IF NOT EXISTS idx_risk_assessments_score ON RISK_ASSESSMENTS(risk_score);
-CREATE INDEX IF NOT EXISTS idx_assessment_signals_signal_id ON ASSESSMENT_SIGNALS(signal_id);
-```
-
-### F. SQLite TRIGGER (Automated Audit Trail)
-Created in [`schema.sql`](file:///c:/Users/simran/OneDrive/Desktop/TRUST%20MESH/schema.sql#L120-L135). Whenever a new assessment record is inserted into `RISK_ASSESSMENTS`, the database engine automatically writes an entry into `AUDIT_LOGS`:
-```sql
-CREATE TRIGGER IF NOT EXISTS trg_audit_assessment_insert
-AFTER INSERT ON RISK_ASSESSMENTS
-BEGIN
-    INSERT INTO AUDIT_LOGS (user_id, event_type, event_status, created_at)
-    VALUES (
-        (SELECT user_id FROM INCIDENTS WHERE incident_id = NEW.incident_id),
-        'ASSESSMENT_CREATED',
-        'SUCCESS',
-        CURRENT_TIMESTAMP
-    );
-END;
-```
-
----
-
-## 7. API Endpoint Reference
-
-| Method & Route | Purpose | Request Body | Response Format |
-| :--- | :--- | :--- | :--- |
-| **`GET /`** | Renders web application with analyzer and history dashboard | None | HTML5 page |
-| **`POST /analyze`** | Evaluates message/URL, executes atomic database transaction, and returns analysis result | `{"text": "suspicious string"}` | `{"incident_id": 1, "score": 60, "level": "High risk", "findings": [...], "recommendation": "...", "disclaimer": "...", "urls_found": 0, "engine_version": "2.0.0"}` |
-| **`GET /api/history`** | Returns latest 20 safe incident evaluations | None | `{"history": [{"incident_id": 1, "created_at": "...", "content_type": "message", "risk_score": 60, "risk_level": "High risk", "signal_count": 3, "signals": [...], ...}]}` |
-| **`GET /api/analytics`** | Returns real-time platform statistics from SQLite | None | `{"analytics": {"total_analyses": 8, "high_risk_count": 2, "suspicious_count": 2, "lower_risk_count": 4, "average_score": 31.3, "top_signals": [...]}}` |
-| **`GET /health`** | System & SQLite connectivity health check | None | `{"status": "healthy", "database": "connected", "engine_version": "2.0.0"}` (HTTP 200 / 503) |
-
----
-
-## 8. Installation & Local Setup
+## 7. Setup & Execution Guide (Windows)
 
 ### Prerequisites
-- Python 3.10+ installed on your machine.
-- PowerShell or Command Prompt in Windows.
+* Windows 10 or 11
+* Python 3.10+ installed and added to `PATH`
+* Git (optional)
 
 ### Step 1: Open Terminal in Project Directory
+Open **PowerShell** or **Command Prompt** and navigate to the project directory:
 ```powershell
 cd "c:\Users\simran\OneDrive\Desktop\TRUST MESH"
 ```
 
 ### Step 2: Activate the Virtual Environment
-- **Windows PowerShell:**
-  ```powershell
-  .\.venv\Scripts\Activate.ps1
-  ```
-  *(If execution is restricted, run: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process`)*
-
-- **Windows Command Prompt (cmd.exe):**
-  ```cmd
-  .venv\Scripts\activate.bat
-  ```
-
-### Step 3: Install Dependencies (if not already installed)
 ```powershell
-python -m pip install -r requirements.txt
+# In PowerShell:
+.\.venv\Scripts\Activate.ps1
+
+# Or in Command Prompt (cmd.exe):
+.\.venv\Scripts\activate.bat
 ```
 
-### Step 4: Run the Application
+### Step 3: Install Dependencies
+```powershell
+pip install -r requirements.txt
+```
+
+### Step 4: Configure Environment Variables
+Copy the example environment file:
+```powershell
+# PowerShell:
+cp .env.example .env
+
+# Or Command Prompt:
+copy .env.example .env
+```
+*(Optional)* Generate your own cryptographic secret key:
+```powershell
+python -c "import secrets; print(secrets.token_hex(32))"
+```
+Paste this token as `SECRET_KEY=...` in your `.env` file.
+
+### Step 5: Provision an Administrator Account
+Run the one-time admin provisioning CLI utility:
+```powershell
+python create_admin.py admin@trustmesh.local "System Administrator" "AdminPass123!Secure"
+```
+
+### Step 6: Run the Flask Web Application
 ```powershell
 python app.py
 ```
-*(On first execution, `instance/trustmesh.db` is created and initialized automatically from `schema.sql`)*
-
-### Step 5: Open in Browser
-Navigate to:
-```
-http://127.0.0.1:5000
-```
+Open your web browser and navigate to:
+**`http://127.0.0.1:5000`**
 
 ---
 
-## 9. Automated Testing Suites
+## 8. Automated Testing Guide
 
-TRUSTMESH includes two comprehensive automated test suites using Python's built-in `unittest` framework:
+Run the comprehensive test suites verifying all 51 automated security and functional scenarios:
 
-### Suite 1: Phase 2 Database & Integration Suite (`test_phase2.py`)
-Uses an isolated temporary database to test all 14 Phase 2 requirements:
+### Run the Phase 3 Security Suite (29 Tests)
 ```powershell
-python test_phase2.py
+python test_phase3.py
 ```
-**Test Coverage:**
-- `Test 1:` Schema initialization & catalog seeding
-- `Test 2:` Foreign key enforcement (`PRAGMA foreign_keys = ON`)
-- `Test 3:` Valid analysis persistence & automated audit trigger
-- `Test 4:` Many-to-Many signal relationships in `ASSESSMENT_SIGNALS`
-- `Test 5:` Transaction rollback on constraint violation (zero orphaned records)
-- `Test 6:` History chronological descending order
-- `Test 7:` Privacy assurance (raw content absent from history)
-- `Test 8:` Analytics aggregations (`COUNT`, `AVG`, `GROUP BY`)
-- `Test 9:` Empty input rejection (HTTP 400)
-- `Test 10:` Length > 5,000 characters rejection (HTTP 400)
-- `Test 11:` SQL injection parameterization safety
-- `Test 12:` Database failure safe handling (HTTP 500 without stack trace)
-- `Test 13:` Phase 1 rule scoring backward compatibility
-- `Test 14:` System health endpoint verification
+*Tests registration validation, password hashing, generic login responses, session clearing, RBAC access denial, parameter tampering protection, CSRF token validation, privacy guarantees, SQL injection resistance, audit log hygiene, and security headers.*
 
-### Suite 2: Phase 1 Detection Engine Verification (`test_engine.py`)
+### Run All Platform Test Suites (51 Tests Total)
 ```powershell
-python test_engine.py
+python -m unittest test_engine.py test_phase2.py test_phase3.py
 ```
 
 ---
 
-## 10. Privacy & Security Architecture
+## 9. College Viva Defense & Technical Interview Preparation
 
-1. **Zero Raw Content Storage:** Submitted messages, emails, SMS texts, and URLs are analyzed strictly in volatile memory. No user text is stored in SQLite tables or written to log files.
-2. **Cryptographic Content Fingerprinting:** A one-way SHA-256 hash (`content_fingerprint`) is stored in `INCIDENTS`. This permits duplicate detection and auditing without retaining reversible text. (Documented limitation: short predictable strings could be dictionary-tested, hence it is treated as pseudonymous metadata, not absolute anonymity).
-3. **No Automatic Network Requests:** URLs are parsed geometrically and syntactically using `urllib.parse`. The backend **never** makes outbound HTTP connections or visits submitted links.
-4. **Strict Parameterization:** Every database operation uses `?` placeholders. User input is never concatenated into SQL strings, completely neutralizing SQL Injection attacks.
-5. **Cross-Site Scripting (XSS) Prevention:** Dynamic UI updates in JavaScript strictly employ `textContent` and `document.createElement()`. Untrusted user data is never parsed via `innerHTML` or `eval()`.
-6. **Relational Integrity Enforcement:** Every SQLite connection executes `PRAGMA foreign_keys = ON;`, ensuring orphaned records cannot exist.
+Here are simple, professional answers to common questions asked during university viva examinations:
+
+### Q1: What is the difference between Authentication and Authorization?
+* **Authentication ("Who are you?"):** The process of verifying an entity's claimed identity using credentials such as an email and a password hash. In TRUSTMESH, this occurs via `/login`.
+* **Authorization ("What are you allowed to do?"):** The process of verifying whether an authenticated user has the necessary permissions to access a specific resource. In TRUSTMESH, this is enforced by `@role_required("admin")`.
+
+### Q2: What is the difference between Hashing and Encryption?
+* **Hashing is a one-way mathematical function:** Given an input, it produces a fixed-length digest that cannot be decrypted back into the original text. It is used for passwords (via Scrypt/PBKDF2) so even developers cannot view user passwords.
+* **Encryption is a two-way process:** Plaintext is converted to ciphertext using a secret key and can be decrypted back into plaintext with the corresponding key.
+
+### Q3: What is Role-Based Access Control (RBAC)?
+* RBAC is an authorization mechanism where permissions are assigned to specific roles (e.g., `user` and `admin`) rather than directly to individual users. Users are assigned roles, and access to application endpoints is restricted based on those roles.
+
+### Q4: What is Cross-Site Request Forgery (CSRF) and how does TRUSTMESH prevent it?
+* **CSRF:** An attack where a malicious website tricks a victim's browser into executing an unwanted action on a web application where the victim is currently authenticated.
+* **Defense:** TRUSTMESH uses `Flask-WTF` to implement the **Synchronizer Token Pattern**. Every state-changing form and fetch request requires a unique, unpredictable secret token tied to the user's session. Since external malicious sites cannot read this token (due to the Same-Origin Policy), forged requests are rejected with HTTP 400.
+
+### Q5: What is Cross-Site Scripting (XSS) and how is it mitigated here?
+* **XSS:** An attack where malicious JavaScript is injected into a web page viewed by other users.
+* **Defense:** TRUSTMESH uses safe DOM manipulation (`element.textContent = ...` instead of `innerHTML`) when rendering dynamic text, escapes all Jinja2 templates, and enforces a strict `Content-Security-Policy` restricting script sources.
+
+### Q6: How is SQL Injection prevented?
+* By strictly using **parameterized queries** (`cursor.execute("SELECT ... WHERE email = ?", (email,))`). User input is treated strictly as literal data, never as executable SQL code.
+
+### Q7: Why do session cookies require `HttpOnly` and `SameSite` flags?
+* `HttpOnly` blocks JavaScript from accessing the session cookie via `document.cookie`, protecting session tokens from being stolen during an XSS attack.
+* `SameSite=Lax` stops the browser from sending the session cookie with cross-site requests, providing an additional layer of CSRF protection.
+
+### Q8: Why must authorization be enforced on the backend rather than the frontend?
+* Frontend code (HTML, CSS, JavaScript) runs on the client device and can be modified or bypassed using browser Developer Tools, Postman, or `curl`. The backend server is the only trusted boundary and must independently verify identity and permissions on every request.
 
 ---
 
-## 11. SQLite vs. Azure SQL Database (Viva Defense Guide)
+## 10. Known Limitations & Future Roadmap
 
-In your college viva, examiners will ask why SQLite was chosen and how the system will transition to **Azure SQL Database** in Phase 3/4.
-
-| Architectural Dimension | SQLite (Phase 2 Local Development) | Azure SQL Database (Planned Cloud Migration) |
-| :--- | :--- | :--- |
-| **Deployment Model** | Serverless, single-file database (`instance/trustmesh.db`). Zero network latency for local testing. | Fully managed PaaS cloud database hosted on Microsoft Azure cloud infrastructure. |
-| **Concurrency** | Single-writer, multiple-reader via file locking. Ideal for single-developer local projects. | Enterprise multi-threaded concurrency with distributed transactions and connection pooling. |
-| **Foreign Keys** | Disabled by default in SQLite; must be explicitly turned on via `PRAGMA foreign_keys = ON;`. | Enforced natively by default at the database engine level. |
-| **Stored Procedures** | Not supported in standard SQLite. Emulated via SQLite triggers (`CREATE TRIGGER`). | Supported natively via T-SQL (`CREATE PROCEDURE ... EXEC`). |
-| **Data Types** | Dynamic typing / type affinity (`INTEGER`, `TEXT`, `REAL`, `BLOB`). | Strict static typing (`INT`, `NVARCHAR(MAX)`, `DATETIME2`, `DECIMAL`). |
-| **Cost** | 100% Free and open-source. Requires no cloud account or credentials. | Cloud subscription model (consumes Azure credits / monthly subscription). |
-
-### Cloud Migration Pathway (How to Explain It):
-Because our database logic is completely modularized in [`database.py`](file:///c:/Users/simran/OneDrive/Desktop/TRUST%20MESH/database.py) rather than scattered inside `app.py`, migrating to Azure SQL Database requires:
-1. Swapping `sqlite3` for a cloud database connector like `pyodbc` or `azure-identity`.
-2. Updating connection strings to point to the Azure SQL Server endpoint (`tcp:trustmesh-server.database.windows.net,1433`).
-3. Adapting `schema.sql` syntax from SQLite to T-SQL (converting `INTEGER PRIMARY KEY AUTOINCREMENT` to `INT IDENTITY(1,1) PRIMARY KEY` and converting triggers into T-SQL stored procedures).
-4. **The entire Flask application (`app.py`), detection engine, and frontend will continue working without redesign.**
-
----
-
-## 12. Current Limitations & Planned Future Phases
-
-- **Rule-Based Heuristics (Not Machine Learning Yet):** Phase 2 still relies on deterministic regex patterns and weighted indicators. It is explainable, but cannot yet infer subtle semantic nuances or evasion techniques.
-- **Phase 3 (Planned):** Integration of a local Scikit-Learn / TF-IDF or DistilBERT machine learning model to compute semantic fraud probability.
-- **Phase 4 (Planned):** User registration, password hashing (`bcrypt`), JWT sessions, and migration to Azure SQL Database.
+* **In-Memory Rate Limiting:** Local development does not currently integrate a persistent Redis rate limiter for login brute-force mitigation.
+* **Single-Node SQLite:** SQLite is ideal for local solo development and viva demonstrations. When scaling to multi-instance cloud deployments (such as Azure App Service), the database will migrate to **Azure SQL** and **Azure Key Vault** for centralized secret rotation.
+* **Heuristic Engine:** Current risk scoring uses rule-based heuristic pattern matching rather than a trained deep-learning classifier. In Phase 4, a fine-tuned lightweight NLP model will complement the rule engine.

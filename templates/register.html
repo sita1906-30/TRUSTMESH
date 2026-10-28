@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Create your TRUSTMESH account — AI-Powered Digital Trust & Scam Intelligence Platform.">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Create Account — TRUSTMESH</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="auth-page">
+    <!-- Header -->
+    <header class="app-header">
+        <div class="header-container">
+            <div class="brand-group">
+                <a href="{{ url_for('index') }}" class="brand-link" title="Return to Home">
+                    <div class="brand-logo" aria-hidden="true">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            <path d="M9 12l2 2 4-4"/>
+                        </svg>
+                    </div>
+                    <div class="brand-meta">
+                        <span class="brand-name">TRUSTMESH</span>
+                        <span class="brand-tagline">YOUR DIGITAL TRUST LAYER</span>
+                    </div>
+                </a>
+            </div>
+            <div class="header-nav">
+                <a href="{{ url_for('index') }}" class="nav-link">Home</a>
+                <a href="{{ url_for('login') }}" class="nav-link">Sign In</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-container auth-container">
+        <div class="auth-card">
+            <div class="auth-card-header">
+                <span class="auth-badge">Registration</span>
+                <h2 class="auth-title">Create your account</h2>
+                <p class="auth-subtitle">Join TRUSTMESH to build your personal digital trust telemetry.</p>
+            </div>
+
+            {% if error %}
+            <div class="alert-banner alert-error" role="alert">
+                <div class="alert-icon" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                </div>
+                <div class="alert-content">
+                    <strong class="alert-title">Registration Error</strong>
+                    <p class="alert-text">{{ error }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <form action="{{ url_for('register') }}" method="POST" class="auth-form" novalidate>
+                <!-- CSRF Token Protection -->
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div class="form-group">
+                    <label for="display_name" class="form-label">Full Name / Display Name</label>
+                    <input 
+                        type="text" 
+                        id="display_name" 
+                        name="display_name" 
+                        class="form-input" 
+                        placeholder="Simran Kaur" 
+                        maxlength="60"
+                        value="{{ request.form.get('display_name', '') }}"
+                        required 
+                        autofocus
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="email" class="form-label">Email Address</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        class="form-input" 
+                        placeholder="you@university.edu" 
+                        maxlength="120"
+                        value="{{ request.form.get('email', '') }}"
+                        required 
+                        autocomplete="email"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        class="form-input" 
+                        placeholder="At least 8 characters" 
+                        maxlength="128"
+                        required 
+                        autocomplete="new-password"
+                    >
+                    <span class="form-hint">Must be at least 8 characters long.</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirm_password" class="form-label">Confirm Password</label>
+                    <input 
+                        type="password" 
+                        id="confirm_password" 
+                        name="confirm_password" 
+                        class="form-input" 
+                        placeholder="Repeat your password" 
+                        maxlength="128"
+                        required 
+                        autocomplete="new-password"
+                    >
+                </div>
+
+                <button type="submit" class="primary-btn auth-submit-btn">
+                    <span>Create Account</span>
+                </button>
+            </form>
+
+            <div class="auth-footer-links">
+                <span>Already registered?</span>
+                <a href="{{ url_for('login') }}" class="auth-link">Sign in here</a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+        <div class="footer-container">
+            <div class="footer-meta">
+                <span class="footer-brand">TRUSTMESH</span>
+                <span class="footer-bullet">&bull;</span>
+                <span class="footer-subtitle">A student cybersecurity project (Phase 3)</span>
+            </div>
+            <p class="privacy-notice">
+                <strong>Data Minimization:</strong> TRUSTMESH only collects your name and email to maintain an isolated personal history. Passwords are cryptographically salted and hashed.
+            </p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -9,6 +9,7 @@ from app import app, MAX_INPUT_LENGTH
 
 class TestTrustMeshBackend(unittest.TestCase):
     def setUp(self):
+        app.config["WTF_CSRF_ENABLED"] = False
         self.client = app.test_client()
         self.client.testing = True
 
