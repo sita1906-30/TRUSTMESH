@@ -1,0 +1,154 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1250 880" width="100%" height="100%" style="background-color: #070B14; font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;">
+    
+    <defs>
+        <!-- Arrowhead Marker (Cyan) -->
+        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 10 5 L 0 9 z" fill="#38BDF8"/>
+        </marker>
+        <!-- Arrowhead Marker (Green) -->
+        <marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 10 5 L 0 9 z" fill="#00F090"/>
+        </marker>
+        <!-- Arrowhead Marker (Purple) -->
+        <marker id="arrow-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 10 5 L 0 9 z" fill="#818CF8"/>
+        </marker>
+        <!-- Arrowhead Marker (Amber) -->
+        <marker id="arrow-amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 10 5 L 0 9 z" fill="#F59E0B"/>
+        </marker>
+        <!-- Card Drop Shadow -->
+        <filter id="shadow" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+            <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.45"/>
+        </filter>
+        <!-- Glow Filter -->
+        <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="3" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
+    </defs>
+
+    <!-- Background Canvas -->
+    <rect width="1250" height="880" fill="#070B14"/>
+    <rect x="15" y="15" width="1220" height="850" rx="12" fill="none" stroke="#1E293B" stroke-width="1.5"/>
+
+    <!-- Title Block -->
+    <text x="625" y="48" text-anchor="middle" fill="#00F090" font-size="24" font-weight="700" letter-spacing="1">TRUSTMESH — UML SEQUENCE DIAGRAM</text>
+    <text x="625" y="72" text-anchor="middle" fill="#94A3B8" font-size="13">End-to-End Request Lifecycle: Authenticated Scam Analysis, Heuristic Scoring &amp; Atomic Persistence</text>
+
+    <!-- Lifeline Headers -->
+    <!-- Lifeline 1: Client Browser -->
+    <g transform="translate(60, 95)">
+        <rect width="140" height="45" rx="6" fill="#1E293B" stroke="#38BDF8" stroke-width="1.5"/>
+        <text x="70" y="27" text-anchor="middle" fill="#38BDF8" font-size="12" font-weight="700">Client Browser</text>
+        <line x1="70" y1="45" x2="70" y2="730" stroke="#334155" stroke-width="1.5" stroke-dasharray="4,4"/>
+    </g>
+
+    <!-- Lifeline 2: Security Middleware -->
+    <g transform="translate(260, 95)">
+        <rect width="160" height="45" rx="6" fill="#1E293B" stroke="#EF4444" stroke-width="1.5"/>
+        <text x="80" y="27" text-anchor="middle" fill="#EF4444" font-size="12" font-weight="700">Security Middleware</text>
+        <line x1="80" y1="45" x2="80" y2="730" stroke="#334155" stroke-width="1.5" stroke-dasharray="4,4"/>
+    </g>
+
+    <!-- Lifeline 3: Flask Router (app.py) -->
+    <g transform="translate(480, 95)">
+        <rect width="140" height="45" rx="6" fill="#1E293B" stroke="#3B82F6" stroke-width="1.5"/>
+        <text x="70" y="27" text-anchor="middle" fill="#3B82F6" font-size="12" font-weight="700">Flask Router</text>
+        <line x1="70" y1="45" x2="70" y2="730" stroke="#334155" stroke-width="1.5" stroke-dasharray="4,4"/>
+    </g>
+
+    <!-- Lifeline 4: Heuristic Engine -->
+    <g transform="translate(680, 95)">
+        <rect width="160" height="45" rx="6" fill="#1E293B" stroke="#00F090" stroke-width="1.5"/>
+        <text x="80" y="27" text-anchor="middle" fill="#00F090" font-size="12" font-weight="700">Heuristic Engine</text>
+        <line x1="80" y1="45" x2="80" y2="730" stroke="#334155" stroke-width="1.5" stroke-dasharray="4,4"/>
+    </g>
+
+    <!-- Lifeline 5: Database Layer -->
+    <g transform="translate(900, 95)">
+        <rect width="140" height="45" rx="6" fill="#1E293B" stroke="#818CF8" stroke-width="1.5"/>
+        <text x="70" y="27" text-anchor="middle" fill="#818CF8" font-size="12" font-weight="700">Database Layer</text>
+        <line x1="70" y1="45" x2="70" y2="730" stroke="#334155" stroke-width="1.5" stroke-dasharray="4,4"/>
+    </g>
+
+    <!-- Lifeline 6: RDBMS (SQLite / Azure SQL) -->
+    <g transform="translate(1080, 95)">
+        <rect width="130" height="45" rx="6" fill="#1E293B" stroke="#10B981" stroke-width="1.5"/>
+        <text x="65" y="27" text-anchor="middle" fill="#10B981" font-size="12" font-weight="700">SQL Database</text>
+        <line x1="65" y1="45" x2="65" y2="730" stroke="#334155" stroke-width="1.5" stroke-dasharray="4,4"/>
+    </g>
+
+    <!-- Sequence Steps -->
+    <!-- Step 1: User submits analysis -->
+    <line x1="130" y1="170" x2="340" y2="170" stroke="#38BDF8" stroke-width="1.8" marker-end="url(#arrow)"/>
+    <text x="235" y="162" text-anchor="middle" fill="#38BDF8" font-size="11" font-weight="600">1. POST /analyze (JSON + X-CSRFToken)</text>
+
+    <!-- Step 2: Security Validation -->
+    <rect x="330" y="170" width="20" height="70" rx="3" fill="#EF4444" opacity="0.6"/>
+    <path d="M 350 185 C 380 185, 380 205, 350 205" stroke="#EF4444" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+    <text x="390" y="198" fill="#FCA5A5" font-size="10">Validate CSRF Token &amp; 16MB Cap</text>
+
+    <line x1="340" y1="230" x2="550" y2="230" stroke="#38BDF8" stroke-width="1.8" marker-end="url(#arrow)"/>
+    <text x="445" y="222" text-anchor="middle" fill="#38BDF8" font-size="11" font-weight="600">2. Forward Sanitized Request</text>
+
+    <!-- Step 3: Input length verification -->
+    <rect x="540" y="230" width="20" height="90" rx="3" fill="#3B82F6" opacity="0.6"/>
+    <path d="M 560 245 C 590 245, 590 265, 560 265" stroke="#3B82F6" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+    <text x="600" y="258" fill="#93C5FD" font-size="10">Verify Input Length (&lt;= 5000 chars)</text>
+
+    <line x1="550" y1="290" x2="760" y2="290" stroke="#00F090" stroke-width="1.8" marker-end="url(#arrow-green)"/>
+    <text x="655" y="282" text-anchor="middle" fill="#00F090" font-size="11" font-weight="600">3. analyze_interaction(text)</text>
+
+    <!-- Step 4: Heuristic Engine Execution -->
+    <rect x="750" y="290" width="20" height="130" rx="3" fill="#00F090" opacity="0.6"/>
+    <path d="M 770 310 C 800 310, 800 330, 770 330" stroke="#00F090" stroke-width="1.5" fill="none" marker-end="url(#arrow-green)"/>
+    <text x="810" y="323" fill="#A7F3D0" font-size="10">Match Regex Patterns (Urgency, Fees, etc.)</text>
+
+    <path d="M 770 350 C 800 350, 800 370, 770 370" stroke="#00F090" stroke-width="1.5" fill="none" marker-end="url(#arrow-green)"/>
+    <text x="810" y="363" fill="#A7F3D0" font-size="10">inspect_url(): IP Host, Punycode, Scheme</text>
+
+    <path d="M 770 390 C 800 390, 800 410, 770 410" stroke="#00F090" stroke-width="1.5" fill="none" marker-end="url(#arrow-green)"/>
+    <text x="810" y="403" fill="#A7F3D0" font-size="10">Calculate Aggregate Score (0..100) &amp; Level</text>
+
+    <line x1="760" y1="430" x2="550" y2="430" stroke="#00F090" stroke-width="1.8" marker-end="url(#arrow-green)"/>
+    <text x="655" y="422" text-anchor="middle" fill="#00F090" font-size="11" font-weight="600">4. Return Score, Level, Findings &amp; Disclaimers</text>
+
+    <!-- Step 5: Save Transaction -->
+    <line x1="550" y1="470" x2="970" y2="470" stroke="#818CF8" stroke-width="1.8" marker-end="url(#arrow-purple)"/>
+    <text x="760" y="462" text-anchor="middle" fill="#818CF8" font-size="11" font-weight="600">5. save_analysis_transaction(user_id, score, signals...)</text>
+
+    <!-- Step 6: Database Persistence -->
+    <rect x="960" y="470" width="20" height="150" rx="3" fill="#818CF8" opacity="0.6"/>
+    <line x1="970" y1="500" x2="1145" y2="500" stroke="#10B981" stroke-width="1.8" marker-end="url(#arrow-green)"/>
+    <text x="1057" y="492" text-anchor="middle" fill="#10B981" font-size="11" font-weight="600">6. BEGIN TRANSACTION</text>
+
+    <line x1="970" y1="535" x2="1145" y2="535" stroke="#10B981" stroke-width="1.8" marker-end="url(#arrow-green)"/>
+    <text x="1057" y="527" text-anchor="middle" fill="#10B981" font-size="10">INSERT INCIDENTS (SHA-256 Fingerprint)</text>
+
+    <line x1="970" y1="565" x2="1145" y2="565" stroke="#10B981" stroke-width="1.8" marker-end="url(#arrow-green)"/>
+    <text x="1057" y="557" text-anchor="middle" fill="#10B981" font-size="10">INSERT RISK_SCORES &amp; INCIDENT_SIGNALS</text>
+
+    <line x1="970" y1="595" x2="1145" y2="595" stroke="#10B981" stroke-width="1.8" marker-end="url(#arrow-green)"/>
+    <text x="1057" y="587" text-anchor="middle" fill="#10B981" font-size="11" font-weight="600">7. COMMIT TRANSACTION</text>
+
+    <line x1="970" y1="630" x2="550" y2="630" stroke="#818CF8" stroke-width="1.8" marker-end="url(#arrow-purple)"/>
+    <text x="760" y="622" text-anchor="middle" fill="#818CF8" font-size="11" font-weight="600">8. Return (incident_id, score_id)</text>
+
+    <!-- Step 7: HTTP Response back to user -->
+    <line x1="550" y1="670" x2="130" y2="670" stroke="#00F090" stroke-width="2" marker-end="url(#arrow-green)"/>
+    <text x="340" y="662" text-anchor="middle" fill="#00F090" font-size="11" font-weight="700">9. HTTP 200 OK (JSON: score, level, findings, recommendations)</text>
+
+    <!-- Step 8: DOM Update -->
+    <rect x="120" y="670" width="20" height="50" rx="3" fill="#38BDF8" opacity="0.6"/>
+    <path d="M 140 685 C 170 685, 170 705, 140 705" stroke="#38BDF8" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+    <text x="180" y="698" fill="#38BDF8" font-size="10">Safe DOM Update (textContent) &amp; Signal Modal Ready</text>
+
+    <!-- Notes & Invariants at bottom -->
+    <g transform="translate(60, 750)">
+        <rect width="1130" height="60" rx="6" fill="#0F172A" stroke="#00F090" stroke-width="1"/>
+        <text x="20" y="24" fill="#00F090" font-size="11" font-weight="700">Core Privacy &amp; Security Invariants Verified During Sequence:</text>
+        <text x="20" y="45" fill="#94A3B8" font-size="10">&#10004; In-Memory Analysis: Raw text is completely processed in volatile memory and never transmitted to database layers.</text>
+        <text x="630" y="45" fill="#94A3B8" font-size="10">&#10004; Atomic Rollback: In case of constraint failure, database commits zero partial records.</text>
+    </g>
+</svg>

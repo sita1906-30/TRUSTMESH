@@ -48,6 +48,10 @@
                 <span class="status-pulse" aria-hidden="true"></span>
                 <span>Role: System Administrator (RBAC Enforced)</span>
             </div>
+            <div class="hero-pill mt-2">
+                <span class="status-pulse {% if db_status and db_status.status != 'connected' %}status-pulse-offline{% elif db_status and db_status.is_cloud %}status-pulse-cloud{% endif %}" aria-hidden="true"></span>
+                <span>Database: {{ db_status.indicator if db_status else 'Local SQLite connected' }}</span>
+            </div>
             <h2 class="hero-heading">Security Telemetry & Account Management</h2>
             <p class="hero-description">Audit logs, platform volume, and user account status. No plaintext user messages are stored or accessible.</p>
         </section>
@@ -78,6 +82,87 @@
                 <span class="stat-label">Average Risk Score</span>
                 <span class="stat-value">{{ overview.analytics.average_score }}</span>
                 <span class="stat-meta">Platform average</span>
+            </div>
+        </section>
+
+        <!-- Power BI & Scam Intelligence Analytics (Phase 4, Task 4) -->
+        <section class="admin-section" id="analytics-section">
+            <div class="admin-card">
+                <div class="card-header analytics-header-flex">
+                    <div class="card-title-group">
+                        <span class="history-badge-tag">Business Intelligence</span>
+                        <h3 class="history-title">Scam Intelligence & Power BI Telemetry</h3>
+                        <p class="history-subtitle">Aggregated assessment metrics, risk categorization, and sanitized dataset export for Power BI Desktop.</p>
+                    </div>
+                    <div class="header-action-group">
+                        <a href="{{ url_for('api_analytics_export') }}" class="export-btn-link" title="Export sanitized dataset for Power BI Desktop">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            <span>Download Anonymized CSV</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Analytics Cards Grid -->
+                <div class="analytics-subgrid">
+                    <!-- Risk Level Distribution -->
+                    <div class="analytics-subcard">
+                        <h4 class="subcard-title">Risk Level Distribution</h4>
+                        <div class="distribution-list">
+                            {% for dist in analytics_bundle.risk_distribution %}
+                            <div class="distribution-item">
+                                <div class="dist-header">
+                                    <span class="dist-label dist-{{ dist.risk_level|lower|replace(' ', '-') }}">{{ dist.risk_level }}</span>
+                                    <span class="dist-stats"><strong>{{ dist.assessment_count }}</strong> ({{ dist.percentage }}%)</span>
+                                </div>
+                                <div class="dist-bar-track">
+                                    <div class="dist-bar-fill dist-fill-{{ dist.risk_level|lower|replace(' ', '-') }}" style="width: {{ dist.percentage }}%;"></div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Top Detected Signals -->
+                    <div class="analytics-subcard">
+                        <h4 class="subcard-title">Top Detected Warning Signals</h4>
+                        <div class="signals-frequency-list">
+                            {% for sig in analytics_bundle.risk_signals[:5] %}
+                            <div class="sig-freq-row">
+                                <div class="sig-info">
+                                    <strong class="sig-name">{{ sig.signal_name }}</strong>
+                                    <span class="sig-cat">{{ sig.category }}</span>
+                                </div>
+                                <div class="sig-freq-badge">
+                                    <span>{{ sig.detection_count }} hits</span>
+                                    <span class="sig-pct">({{ sig.prevalence_pct }}%)</span>
+                                </div>
+                            </div>
+                            {% else %}
+                            <p class="text-muted">No signals recorded yet.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Daily Activity Trend -->
+                    <div class="analytics-subcard">
+                        <h4 class="subcard-title">Recent Activity Trends</h4>
+                        <div class="trends-summary-list">
+                            {% for t in analytics_bundle.trends[-5:]|reverse %}
+                            <div class="trend-row">
+                                <span class="trend-date">{{ t.period }}</span>
+                                <span class="trend-count">{{ t.total_assessments }} scans</span>
+                                <span class="trend-avg">Avg: {{ t.avg_risk_score }}</span>
+                            </div>
+                            {% else %}
+                            <p class="text-muted">No trend telemetry recorded yet.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -186,7 +271,7 @@
             <div class="footer-meta">
                 <span class="footer-brand">TRUSTMESH</span>
                 <span class="footer-bullet">&bull;</span>
-                <span class="footer-subtitle">Admin Console (Phase 3)</span>
+                <span class="footer-subtitle">Admin Console (Phase 4)</span>
             </div>
             <p class="privacy-notice">
                 <strong>Administrative Access Policy:</strong> Administrators can monitor system health, volume metrics, and user status. In compliance with strict privacy standards, raw submitted message contents are discarded and are inaccessible to administrators.

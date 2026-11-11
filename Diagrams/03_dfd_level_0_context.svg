@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 650" width="100%" height="100%" style="background-color: #070B14; font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;">
+    
+    <defs>
+        <!-- Arrowhead Marker (Cyan) -->
+        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 10 5 L 0 9 z" fill="#38BDF8"/>
+        </marker>
+        <!-- Arrowhead Marker (Green) -->
+        <marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 10 5 L 0 9 z" fill="#00F090"/>
+        </marker>
+        <!-- Arrowhead Marker (Purple) -->
+        <marker id="arrow-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 10 5 L 0 9 z" fill="#818CF8"/>
+        </marker>
+        <!-- Arrowhead Marker (Amber) -->
+        <marker id="arrow-amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 10 5 L 0 9 z" fill="#F59E0B"/>
+        </marker>
+        <!-- Card Drop Shadow -->
+        <filter id="shadow" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+            <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.45"/>
+        </filter>
+        <!-- Glow Filter -->
+        <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="3" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
+    </defs>
+
+    <!-- Background Canvas -->
+    <rect width="1000" height="650" fill="#070B14"/>
+    <rect x="15" y="15" width="970" height="620" rx="12" fill="none" stroke="#1E293B" stroke-width="1.5"/>
+
+    <!-- Title Block -->
+    <text x="500" y="50" text-anchor="middle" fill="#00F090" font-size="24" font-weight="700" letter-spacing="1">TRUSTMESH — DATA FLOW DIAGRAM (LEVEL 0)</text>
+    <text x="500" y="74" text-anchor="middle" fill="#94A3B8" font-size="13">Context Level Diagram Representing System Boundaries &amp; External Data Flows</text>
+
+    <!-- Central Process 0.0 -->
+    <g transform="translate(375, 230)">
+        <circle cx="125" cy="125" r="115" fill="#0F172A" stroke="#00F090" stroke-width="2.5" filter="url(#shadow)"/>
+        <circle cx="125" cy="125" r="105" fill="#1E293B" stroke="#00F090" stroke-width="1" stroke-dasharray="4,3"/>
+        <text x="125" y="100" text-anchor="middle" fill="#38BDF8" font-size="14" font-weight="700">PROCESS 0.0</text>
+        <text x="125" y="125" text-anchor="middle" fill="#F8FAFC" font-size="16" font-weight="700">TRUSTMESH</text>
+        <text x="125" y="145" text-anchor="middle" fill="#00F090" font-size="12" font-weight="600">Digital Trust &amp; Scam</text>
+        <text x="125" y="162" text-anchor="middle" fill="#00F090" font-size="12" font-weight="600">Intelligence Platform</text>
+    </g>
+
+    <!-- External Entity 1: User (Left) -->
+    <g transform="translate(50, 240)">
+        <rect width="160" height="100" rx="6" fill="#1E293B" stroke="#38BDF8" stroke-width="1.8" filter="url(#shadow)"/>
+        <text x="80" y="45" text-anchor="middle" fill="#38BDF8" font-size="14" font-weight="700">END USER</text>
+        <text x="80" y="65" text-anchor="middle" fill="#94A3B8" font-size="11">Guest &amp; Authenticated</text>
+        <text x="80" y="82" text-anchor="middle" fill="#64748B" font-size="10">Web Browser Client</text>
+    </g>
+
+    <!-- External Entity 2: Administrator (Top) -->
+    <g transform="translate(420, 95)">
+        <rect width="160" height="85" rx="6" fill="#1E293B" stroke="#818CF8" stroke-width="1.8" filter="url(#shadow)"/>
+        <text x="80" y="40" text-anchor="middle" fill="#818CF8" font-size="14" font-weight="700">ADMINISTRATOR</text>
+        <text x="80" y="60" text-anchor="middle" fill="#94A3B8" font-size="11">Security Operations</text>
+    </g>
+
+    <!-- External Entity 3: Power BI (Right) -->
+    <g transform="translate(790, 240)">
+        <rect width="160" height="100" rx="6" fill="#1E293B" stroke="#F59E0B" stroke-width="1.8" filter="url(#shadow)"/>
+        <text x="80" y="45" text-anchor="middle" fill="#F59E0B" font-size="14" font-weight="700">POWER BI</text>
+        <text x="80" y="65" text-anchor="middle" fill="#94A3B8" font-size="11">Desktop &amp; DirectQuery</text>
+        <text x="80" y="82" text-anchor="middle" fill="#64748B" font-size="10">Visual Analytics Tool</text>
+    </g>
+
+    <!-- External Entity 4: Microsoft Azure (Bottom) -->
+    <g transform="translate(420, 520)">
+        <rect width="160" height="85" rx="6" fill="#1E293B" stroke="#38BDF8" stroke-width="1.8" filter="url(#shadow)"/>
+        <text x="80" y="40" text-anchor="middle" fill="#38BDF8" font-size="14" font-weight="700">MICROSOFT AZURE</text>
+        <text x="80" y="60" text-anchor="middle" fill="#94A3B8" font-size="11">SQL Database &amp; Blob</text>
+    </g>
+
+    <!-- Data Flows: User <-> Process 0.0 -->
+    <path d="M 210 270 L 375 270" stroke="#38BDF8" stroke-width="1.5" marker-end="url(#arrow)" fill="none"/>
+    <text x="290" y="260" text-anchor="middle" fill="#38BDF8" font-size="10" font-weight="600">Text / URL / Auth Credentials</text>
+
+    <path d="M 375 320 L 210 320" stroke="#00F090" stroke-width="1.5" marker-end="url(#arrow-green)" fill="none"/>
+    <text x="290" y="340" text-anchor="middle" fill="#00F090" font-size="10" font-weight="600">Risk Score, Findings, Reports</text>
+
+    <!-- Data Flows: Admin <-> Process 0.0 -->
+    <path d="M 470 180 L 470 230" stroke="#818CF8" stroke-width="1.5" marker-end="url(#arrow-purple)" fill="none"/>
+    <text x="410" y="210" text-anchor="middle" fill="#818CF8" font-size="10" font-weight="600">Admin Queries</text>
+
+    <path d="M 530 230 L 530 180" stroke="#818CF8" stroke-width="1.5" marker-end="url(#arrow-purple)" fill="none"/>
+    <text x="590" y="210" text-anchor="middle" fill="#818CF8" font-size="10" font-weight="600">Audit Logs &amp; Metrics</text>
+
+    <!-- Data Flows: Process 0.0 -> Power BI -->
+    <path d="M 625 290 L 790 290" stroke="#F59E0B" stroke-width="1.5" marker-end="url(#arrow-amber)" fill="none"/>
+    <text x="705" y="280" text-anchor="middle" fill="#F59E0B" font-size="10" font-weight="600">Sanitized Anonymized CSV</text>
+
+    <!-- Data Flows: Process 0.0 <-> Azure Cloud -->
+    <path d="M 470 480 L 470 520" stroke="#38BDF8" stroke-width="1.5" marker-end="url(#arrow)" fill="none"/>
+    <text x="410" y="505" text-anchor="middle" fill="#38BDF8" font-size="10" font-weight="600">Blob Reports / ODBC</text>
+
+    <path d="M 530 520 L 530 480" stroke="#38BDF8" stroke-width="1.5" marker-end="url(#arrow)" fill="none"/>
+    <text x="590" y="505" text-anchor="middle" fill="#38BDF8" font-size="10" font-weight="600">ODBC Query Results</text>
+</svg>

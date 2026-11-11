@@ -11,15 +11,9 @@ __pycache__/
 *.so
 .pytest_cache/
 
-# Local SQLite Database & Instance folder
-instance/
-*.db
-*.sqlite3
-
-# Environment variables & secrets
-.env
-.env.*
-!.env.example
+# Environment variables & secrets (keep .env.example)
+.env.local
+.env.*.local
 
 # IDE & Editor settings
 .vscode/

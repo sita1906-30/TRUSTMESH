@@ -30,6 +30,10 @@
                 </a>
             </div>
             <div class="header-nav">
+                <div class="header-badge db-status-badge" id="db-status-badge" title="{{ db_status.details if db_status else 'Database Status' }}">
+                    <span class="status-pulse {% if db_status and db_status.status != 'connected' %}status-pulse-offline{% elif db_status and db_status.is_cloud %}status-pulse-cloud{% endif %}" aria-hidden="true"></span>
+                    <span id="db-status-text">{{ db_status.indicator if db_status else 'Local SQLite connected' }}</span>
+                </div>
                 {% if is_authenticated %}
                     <span class="user-greeting">Hi, <strong>{{ current_user.display_name }}</strong></span>
                     {% if current_user.role == 'admin' %}
@@ -214,6 +218,29 @@
                     </div>
                 </div>
 
+                <!-- Export Report Action Panel (Phase 4, Task 3: Azure Blob Storage) -->
+                <div class="export-report-panel" id="export-report-panel">
+                    <div class="export-controls-group">
+                        <button type="button" id="export-report-btn" class="secondary-btn export-btn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            <span id="export-btn-label">Export Assessment Report</span>
+                        </button>
+                        {% if is_authenticated %}
+                        <label class="cloud-save-checkbox-label" title="Archive a private copy to Microsoft Azure Blob Storage">
+                            <input type="checkbox" id="save-to-cloud-checkbox" checked>
+                            <span>Save to Azure Blob Storage</span>
+                        </label>
+                        {% endif %}
+                    </div>
+                    <div id="export-status-banner" class="export-status-banner" hidden>
+                        <span id="export-status-text"></span>
+                    </div>
+                </div>
+
                 <!-- Assessment Limitations Disclaimer -->
                 <div class="disclaimer-banner">
                     <div class="disclaimer-icon" aria-hidden="true">
@@ -394,6 +421,16 @@
                     </ul>
                     <div class="modal-section-title">Stored Recommendation</div>
                     <p class="modal-recommendation" id="modal-recommendation"></p>
+                    <div class="modal-export-group mt-3">
+                        <button type="button" id="modal-export-btn" class="secondary-btn inline-btn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            <span>Export Report for this Incident</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </dialog>

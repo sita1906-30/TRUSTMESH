@@ -100,6 +100,23 @@ CREATE TABLE IF NOT EXISTS AUDIT_LOGS (
 );
 
 -- ----------------------------------------------------------------------------
+-- Table 8: EXPORTED_REPORTS (Phase 4, Task 3: Azure Blob Storage Integration)
+-- Purpose: Records metadata of exported assessment reports and cloud storage status.
+-- ----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS EXPORTED_REPORTS (
+    report_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    assessment_id INTEGER NOT NULL,
+    blob_name TEXT UNIQUE NOT NULL,
+    file_type TEXT NOT NULL DEFAULT 'json',
+    file_size INTEGER NOT NULL DEFAULT 0,
+    storage_status TEXT NOT NULL DEFAULT 'LOCAL' CHECK (storage_status IN ('LOCAL', 'UPLOADED', 'FAILED')),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES USERS(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (assessment_id) REFERENCES RISK_ASSESSMENTS(assessment_id) ON DELETE CASCADE
+);
+
+-- ----------------------------------------------------------------------------
 -- Reporting View: v_incident_summary
 -- Purpose: Summarizes incident records with assessment metrics and signal count.
 -- ----------------------------------------------------------------------------
@@ -121,6 +138,67 @@ LEFT JOIN ASSESSMENT_SIGNALS asig ON ra.assessment_id = asig.assessment_id
 GROUP BY i.incident_id, ra.assessment_id;
 
 -- ----------------------------------------------------------------------------
+-- Analytics View 1: v_analytics_overview (Phase 4, Task 4: Power BI Analytics)
+-- Purpose: Global platform KPI aggregates (counts, score averages, risk ratios).
+-- ----------------------------------------------------------------------------
+CREATE VIEW IF NOT EXISTS v_analytics_overview AS
+SELECT
+    COUNT(ra.assessment_id) AS total_assessments,
+    COALESCE(SUM(CASE WHEN ra.risk_level = 'Lower detected risk' THEN 1 ELSE 0 END), 0) AS total_low_risk,
+    COALESCE(SUM(CASE WHEN ra.risk_level = 'Suspicious' THEN 1 ELSE 0 END), 0) AS total_medium_risk,
+    COALESCE(SUM(CASE WHEN ra.risk_level = 'High risk' THEN 1 ELSE 0 END), 0) AS total_high_risk,
+    COALESCE(ROUND(AVG(CAST(ra.risk_score AS FLOAT)), 2), 0.0) AS avg_risk_score,
+    COALESCE(ROUND(100.0 * SUM(CASE WHEN ra.risk_level = 'Lower detected risk' THEN 1 ELSE 0 END) / NULLIF(COUNT(ra.assessment_id), 0), 2), 0.0) AS pct_low_risk,
+    COALESCE(ROUND(100.0 * SUM(CASE WHEN ra.risk_level = 'Suspicious' THEN 1 ELSE 0 END) / NULLIF(COUNT(ra.assessment_id), 0), 2), 0.0) AS pct_medium_risk,
+    COALESCE(ROUND(100.0 * SUM(CASE WHEN ra.risk_level = 'High risk' THEN 1 ELSE 0 END) / NULLIF(COUNT(ra.assessment_id), 0), 2), 0.0) AS pct_high_risk,
+    (SELECT COUNT(*) FROM ASSESSMENT_SIGNALS) AS total_signals_detected
+FROM RISK_ASSESSMENTS ra;
+
+-- ----------------------------------------------------------------------------
+-- Analytics View 2: v_risk_level_distribution (Phase 4, Task 4: Power BI Analytics)
+-- Purpose: Aggregated breakdown by risk classification category.
+-- ----------------------------------------------------------------------------
+CREATE VIEW IF NOT EXISTS v_risk_level_distribution AS
+SELECT
+    ra.risk_level,
+    COUNT(ra.assessment_id) AS assessment_count,
+    COALESCE(ROUND(AVG(CAST(ra.risk_score AS FLOAT)), 2), 0.0) AS avg_score,
+    COALESCE(ROUND(100.0 * COUNT(ra.assessment_id) / NULLIF((SELECT COUNT(*) FROM RISK_ASSESSMENTS), 0), 2), 0.0) AS percentage
+FROM RISK_ASSESSMENTS ra
+GROUP BY ra.risk_level;
+
+-- ----------------------------------------------------------------------------
+-- Analytics View 3: v_risk_signal_frequency (Phase 4, Task 4: Power BI Analytics)
+-- Purpose: Distribution and detection frequency of all catalog warning signals.
+-- ----------------------------------------------------------------------------
+CREATE VIEW IF NOT EXISTS v_risk_signal_frequency AS
+SELECT
+    rs.signal_id,
+    rs.signal_name,
+    rs.category,
+    rs.description,
+    COUNT(asig.assessment_id) AS detection_count,
+    COALESCE(ROUND(100.0 * COUNT(asig.assessment_id) / NULLIF((SELECT COUNT(*) FROM RISK_ASSESSMENTS), 0), 2), 0.0) AS prevalence_pct
+FROM RISK_SIGNALS rs
+LEFT JOIN ASSESSMENT_SIGNALS asig ON rs.signal_id = asig.signal_id
+GROUP BY rs.signal_id, rs.signal_name, rs.category, rs.description;
+
+-- ----------------------------------------------------------------------------
+-- Analytics View 4: v_assessment_trends (Phase 4, Task 4: Power BI Analytics)
+-- Purpose: Daily assessment volume, risk level counts, and score averages over time.
+-- ----------------------------------------------------------------------------
+CREATE VIEW IF NOT EXISTS v_assessment_trends AS
+SELECT
+    DATE(ra.created_at) AS assessment_date,
+    COUNT(ra.assessment_id) AS total_assessments,
+    COALESCE(SUM(CASE WHEN ra.risk_level = 'Lower detected risk' THEN 1 ELSE 0 END), 0) AS low_risk_count,
+    COALESCE(SUM(CASE WHEN ra.risk_level = 'Suspicious' THEN 1 ELSE 0 END), 0) AS medium_risk_count,
+    COALESCE(SUM(CASE WHEN ra.risk_level = 'High risk' THEN 1 ELSE 0 END), 0) AS high_risk_count,
+    COALESCE(ROUND(AVG(CAST(ra.risk_score AS FLOAT)), 2), 0.0) AS avg_risk_score
+FROM RISK_ASSESSMENTS ra
+GROUP BY DATE(ra.created_at);
+
+-- ----------------------------------------------------------------------------
 -- Performance & Security Indexes
 -- ----------------------------------------------------------------------------
 CREATE INDEX IF NOT EXISTS idx_incidents_created_at ON INCIDENTS(created_at DESC);
@@ -131,6 +209,8 @@ CREATE INDEX IF NOT EXISTS idx_assessment_signals_signal_id ON ASSESSMENT_SIGNAL
 CREATE INDEX IF NOT EXISTS idx_users_email ON USERS(email);
 CREATE INDEX IF NOT EXISTS idx_users_role_id ON USERS(role_id);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_event ON AUDIT_LOGS(event_type, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_exported_reports_user ON EXPORTED_REPORTS(user_id);
+CREATE INDEX IF NOT EXISTS idx_exported_reports_assessment ON EXPORTED_REPORTS(assessment_id);
 
 -- ----------------------------------------------------------------------------
 -- SQLite Trigger: Automated Audit Logging for New Assessments

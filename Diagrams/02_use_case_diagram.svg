@@ -1,0 +1,184 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 850" width="100%" height="100%" style="background-color: #070B14; font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;">
+    
+    <defs>
+        <!-- Arrowhead Marker (Cyan) -->
+        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 10 5 L 0 9 z" fill="#38BDF8"/>
+        </marker>
+        <!-- Arrowhead Marker (Green) -->
+        <marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 10 5 L 0 9 z" fill="#00F090"/>
+        </marker>
+        <!-- Arrowhead Marker (Purple) -->
+        <marker id="arrow-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 10 5 L 0 9 z" fill="#818CF8"/>
+        </marker>
+        <!-- Arrowhead Marker (Amber) -->
+        <marker id="arrow-amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 10 5 L 0 9 z" fill="#F59E0B"/>
+        </marker>
+        <!-- Card Drop Shadow -->
+        <filter id="shadow" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+            <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.45"/>
+        </filter>
+        <!-- Glow Filter -->
+        <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="3" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
+    </defs>
+
+    <!-- Background Canvas -->
+    <rect width="1100" height="850" fill="#070B14"/>
+    <rect x="15" y="15" width="1070" height="820" rx="12" fill="none" stroke="#1E293B" stroke-width="1.5"/>
+
+    <!-- Title Block -->
+    <text x="550" y="50" text-anchor="middle" fill="#00F090" font-size="24" font-weight="700" letter-spacing="1">TRUSTMESH — UML USE CASE DIAGRAM</text>
+    <text x="550" y="74" text-anchor="middle" fill="#94A3B8" font-size="13">Functional Boundary, Actors, Primary &amp; Administrative Capabilities</text>
+
+    <!-- System Boundary Box -->
+    <rect x="250" y="100" width="600" height="715" rx="10" fill="#0F172A" stroke="#334155" stroke-width="2" stroke-dasharray="6,4" filter="url(#shadow)"/>
+    <text x="270" y="125" fill="#38BDF8" font-size="13" font-weight="700">SYSTEM BOUNDARY: TRUSTMESH PLATFORM</text>
+
+    <!-- ==================== ACTORS ==================== -->
+    <!-- Actor 1: Guest User (Left) -->
+    <g transform="translate(60, 200)">
+        <circle cx="50" cy="30" r="16" fill="#1E293B" stroke="#94A3B8" stroke-width="2"/>
+        <line x1="50" y1="46" x2="50" y2="85" stroke="#94A3B8" stroke-width="2"/>
+        <line x1="25" y1="58" x2="75" y2="58" stroke="#94A3B8" stroke-width="2"/>
+        <line x1="50" y1="85" x2="30" y2="120" stroke="#94A3B8" stroke-width="2"/>
+        <line x1="50" y1="85" x2="70" y2="120" stroke="#94A3B8" stroke-width="2"/>
+        <text x="50" y="142" text-anchor="middle" fill="#F8FAFC" font-size="13" font-weight="700">Guest User</text>
+        <text x="50" y="158" text-anchor="middle" fill="#64748B" font-size="11">(Unauthenticated)</text>
+    </g>
+
+    <!-- Actor 2: Registered User (Left) -->
+    <g transform="translate(60, 430)">
+        <circle cx="50" cy="30" r="16" fill="#064E3B" stroke="#00F090" stroke-width="2"/>
+        <line x1="50" y1="46" x2="50" y2="85" stroke="#00F090" stroke-width="2"/>
+        <line x1="25" y1="58" x2="75" y2="58" stroke="#00F090" stroke-width="2"/>
+        <line x1="50" y1="85" x2="30" y2="120" stroke="#00F090" stroke-width="2"/>
+        <line x1="50" y1="85" x2="70" y2="120" stroke="#00F090" stroke-width="2"/>
+        <text x="50" y="142" text-anchor="middle" fill="#00F090" font-size="13" font-weight="700">Registered User</text>
+        <text x="50" y="158" text-anchor="middle" fill="#64748B" font-size="11">Role: 'user'</text>
+    </g>
+
+    <!-- Actor 3: Administrator (Right) -->
+    <g transform="translate(930, 300)">
+        <circle cx="50" cy="30" r="16" fill="#312E81" stroke="#818CF8" stroke-width="2"/>
+        <line x1="50" y1="46" x2="50" y2="85" stroke="#818CF8" stroke-width="2"/>
+        <line x1="25" y1="58" x2="75" y2="58" stroke="#818CF8" stroke-width="2"/>
+        <line x1="50" y1="85" x2="30" y2="120" stroke="#818CF8" stroke-width="2"/>
+        <line x1="50" y1="85" x2="70" y2="120" stroke="#818CF8" stroke-width="2"/>
+        <text x="50" y="142" text-anchor="middle" fill="#818CF8" font-size="13" font-weight="700">Administrator</text>
+        <text x="50" y="158" text-anchor="middle" fill="#64748B" font-size="11">Role: 'admin'</text>
+    </g>
+
+    <!-- Actor 4: Power BI (Right) -->
+    <g transform="translate(930, 580)">
+        <rect x="15" y="15" width="70" height="70" rx="8" fill="#78350F" stroke="#F59E0B" stroke-width="2"/>
+        <text x="50" y="55" text-anchor="middle" fill="#F59E0B" font-size="24">&#128202;</text>
+        <text x="50" y="105" text-anchor="middle" fill="#F59E0B" font-size="12" font-weight="700">Power BI</text>
+        <text x="50" y="122" text-anchor="middle" fill="#64748B" font-size="11">Desktop Tool</text>
+    </g>
+
+    <!-- ==================== USE CASES (OVALS) ==================== -->
+    <!-- UC-01: Analyze Message / URL -->
+    <g transform="translate(320, 150)">
+        <ellipse cx="230" cy="22" rx="160" ry="24" fill="#1E293B" stroke="#00F090" stroke-width="1.5"/>
+        <text x="230" y="27" text-anchor="middle" fill="#F8FAFC" font-size="12" font-weight="600">UC-01: Analyze Suspicious Message / URL</text>
+    </g>
+
+    <!-- UC-02: View Indicators & Guidance -->
+    <g transform="translate(320, 205)">
+        <ellipse cx="230" cy="22" rx="160" ry="24" fill="#1E293B" stroke="#00F090" stroke-width="1.5"/>
+        <text x="230" y="27" text-anchor="middle" fill="#F8FAFC" font-size="12" font-weight="600">UC-02: View Risk Score &amp; Recommendations</text>
+    </g>
+
+    <!-- UC-03: Register Account -->
+    <g transform="translate(320, 260)">
+        <ellipse cx="230" cy="22" rx="160" ry="24" fill="#1E293B" stroke="#38BDF8" stroke-width="1.5"/>
+        <text x="230" y="27" text-anchor="middle" fill="#F8FAFC" font-size="12" font-weight="600">UC-03: Register User Account (Salted Hash)</text>
+    </g>
+
+    <!-- UC-04: Login & Establish Session -->
+    <g transform="translate(320, 315)">
+        <ellipse cx="230" cy="22" rx="160" ry="24" fill="#1E293B" stroke="#38BDF8" stroke-width="1.5"/>
+        <text x="230" y="27" text-anchor="middle" fill="#F8FAFC" font-size="12" font-weight="600">UC-04: Authenticate &amp; Establish Session</text>
+    </g>
+
+    <!-- UC-05: View User History -->
+    <g transform="translate(320, 370)">
+        <ellipse cx="230" cy="22" rx="160" ry="24" fill="#1E293B" stroke="#38BDF8" stroke-width="1.5"/>
+        <text x="230" y="27" text-anchor="middle" fill="#F8FAFC" font-size="12" font-weight="600">UC-05: View Private Incident History</text>
+    </g>
+
+    <!-- UC-06: Export Forensic Report -->
+    <g transform="translate(320, 425)">
+        <ellipse cx="230" cy="22" rx="160" ry="24" fill="#1E293B" stroke="#818CF8" stroke-width="1.5"/>
+        <text x="230" y="27" text-anchor="middle" fill="#F8FAFC" font-size="12" font-weight="600">UC-06: Export Report (JSON / Azure Blob)</text>
+    </g>
+
+    <!-- UC-07: Download Owned Report -->
+    <g transform="translate(320, 480)">
+        <ellipse cx="230" cy="22" rx="160" ry="24" fill="#1E293B" stroke="#818CF8" stroke-width="1.5"/>
+        <text x="230" y="27" text-anchor="middle" fill="#F8FAFC" font-size="12" font-weight="600">UC-07: Download Owned Forensic Report</text>
+    </g>
+
+    <!-- UC-08: Access Admin Console -->
+    <g transform="translate(320, 535)">
+        <ellipse cx="230" cy="22" rx="160" ry="24" fill="#1E293B" stroke="#F59E0B" stroke-width="1.5"/>
+        <text x="230" y="27" text-anchor="middle" fill="#F8FAFC" font-size="12" font-weight="600">UC-08: Access Administrative Console</text>
+    </g>
+
+    <!-- UC-09: Inspect Users & Audit Logs -->
+    <g transform="translate(320, 590)">
+        <ellipse cx="230" cy="22" rx="160" ry="24" fill="#1E293B" stroke="#F59E0B" stroke-width="1.5"/>
+        <text x="230" y="27" text-anchor="middle" fill="#F8FAFC" font-size="12" font-weight="600">UC-09: Review Users &amp; Security Audit Logs</text>
+    </g>
+
+    <!-- UC-10: Query Platform Analytics -->
+    <g transform="translate(320, 645)">
+        <ellipse cx="230" cy="22" rx="160" ry="24" fill="#1E293B" stroke="#F59E0B" stroke-width="1.5"/>
+        <text x="230" y="27" text-anchor="middle" fill="#F8FAFC" font-size="12" font-weight="600">UC-10: Query Threat Intelligence Analytics</text>
+    </g>
+
+    <!-- UC-11: Export Zero-PII CSV -->
+    <g transform="translate(320, 700)">
+        <ellipse cx="230" cy="22" rx="160" ry="24" fill="#1E293B" stroke="#F59E0B" stroke-width="1.5"/>
+        <text x="230" y="27" text-anchor="middle" fill="#F8FAFC" font-size="12" font-weight="600">UC-11: Export Anonymized Telemetry CSV</text>
+    </g>
+
+    <!-- UC-12: Render BI Dashboards -->
+    <g transform="translate(320, 755)">
+        <ellipse cx="230" cy="22" rx="160" ry="24" fill="#1E293B" stroke="#F59E0B" stroke-width="1.5"/>
+        <text x="230" y="27" text-anchor="middle" fill="#F8FAFC" font-size="12" font-weight="600">UC-12: Ingest Telemetry &amp; Render Dashboards</text>
+    </g>
+
+    <!-- ==================== ASSOCIATIONS (LINES) ==================== -->
+    <!-- Guest User Links -->
+    <line x1="140" y1="230" x2="350" y2="170" stroke="#94A3B8" stroke-width="1.2"/>
+    <line x1="140" y1="235" x2="350" y2="225" stroke="#94A3B8" stroke-width="1.2"/>
+    <line x1="140" y1="240" x2="350" y2="280" stroke="#94A3B8" stroke-width="1.2"/>
+    <line x1="140" y1="245" x2="350" y2="335" stroke="#94A3B8" stroke-width="1.2"/>
+
+    <!-- Registered User Links -->
+    <line x1="140" y1="460" x2="350" y2="175" stroke="#00F090" stroke-width="1.2"/>
+    <line x1="140" y1="465" x2="350" y2="230" stroke="#00F090" stroke-width="1.2"/>
+    <line x1="140" y1="470" x2="350" y2="340" stroke="#00F090" stroke-width="1.2"/>
+    <line x1="140" y1="475" x2="350" y2="390" stroke="#00F090" stroke-width="1.2"/>
+    <line x1="140" y1="480" x2="350" y2="445" stroke="#00F090" stroke-width="1.2"/>
+    <line x1="140" y1="485" x2="350" y2="500" stroke="#00F090" stroke-width="1.2"/>
+
+    <!-- Admin Links -->
+    <line x1="930" y1="360" x2="710" y2="390" stroke="#818CF8" stroke-width="1.2"/>
+    <line x1="930" y1="365" x2="710" y2="445" stroke="#818CF8" stroke-width="1.2"/>
+    <line x1="930" y1="370" x2="710" y2="555" stroke="#818CF8" stroke-width="1.2"/>
+    <line x1="930" y1="375" x2="710" y2="610" stroke="#818CF8" stroke-width="1.2"/>
+    <line x1="930" y1="380" x2="710" y2="665" stroke="#818CF8" stroke-width="1.2"/>
+    <line x1="930" y1="385" x2="710" y2="720" stroke="#818CF8" stroke-width="1.2"/>
+
+    <!-- Power BI Links -->
+    <line x1="930" y1="620" x2="710" y2="725" stroke="#F59E0B" stroke-width="1.2"/>
+    <line x1="930" y1="630" x2="710" y2="775" stroke="#F59E0B" stroke-width="1.2"/>
+</svg>

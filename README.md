@@ -1,6 +1,6 @@
 # TRUSTMESH — AI-Powered Personal Digital Trust & Scam Intelligence Platform
 
-**Phase 3: Secure Authentication, Role-Based Access Control (RBAC) & Application Security**
+**Phase 4: Azure Cloud Integration, Storage Archival & Power BI Analytics**
 
 ---
 
@@ -9,8 +9,8 @@
 * **Project Name:** TRUSTMESH
 * **Full Title:** AI-Powered Personal Digital Trust & Scam Intelligence Platform
 * **Academic Level:** 2nd Year B.Tech Computer Science and Engineering (AI/ML)
-* **Academic Phase:** Phase 3 (Authentication, RBAC, Session Management & Application Hardening)
-* **Target Environment:** Local Development on Windows (Prepared for future Azure Cloud Migration)
+* **Academic Phase:** Phase 4 (Azure SQL Database, Azure Blob Storage & Power BI Analytics)
+* **Target Environment:** Windows Local Development with Azure Cloud Readiness
 
 ### Problem Statement
 Digital communications increasingly expose individuals to phishing campaigns, urgency-driven financial extortion, credential harvesting scams, and deceptive links. Everyday users lack the technical background to parse suspicious headers, analyze obfuscated IP domains, or identify deceptive social engineering triggers.
@@ -73,7 +73,16 @@ Every route in TRUSTMESH is classified and enforced strictly on the server:
 | `GET` | `/admin` | **Admin Only (`admin`)** | Admin management console (returns 403 Forbidden for standard users). |
 | `GET` | `/api/admin/users` | **Admin Only (`admin`)** | JSON user directory (omits password hashes and credentials). |
 | `GET` | `/api/admin/audit-logs`| **Admin Only (`admin`)** | JSON system security event stream. |
-| `GET` | `/health` | **Public** | Minimal service and database connectivity check. |
+| `GET` | `/health` | **Public** | Service, database mode, and storage connectivity health status. |
+| `POST`| `/api/reports/export` | **Authenticated (`user` / `admin`)** | Exports structured assessment report JSON with optional Azure Blob Storage upload. |
+| `GET` | `/api/reports/<id>/download` | **Authenticated Owner** | Downloads assessment report with server-side ownership enforcement. |
+| `GET` | `/api/reports` | **Authenticated (`user` / `admin`)** | Returns list of exported reports owned by the authenticated user. |
+| `GET` | `/api/storage/status` | **Public** | Returns live Azure Blob Storage connectivity and container status. |
+| `GET` | `/api/analytics/overview` | **Admin Only (`admin`)** | Platform-wide KPI summary metrics from `v_analytics_overview`. |
+| `GET` | `/api/analytics/risk-distribution` | **Admin Only (`admin`)** | Risk classification breakdown from `v_risk_level_distribution`. |
+| `GET` | `/api/analytics/risk-signals` | **Admin Only (`admin`)** | Detection frequency and prevalence from `v_risk_signal_frequency`. |
+| `GET` | `/api/analytics/trends` | **Admin Only (`admin`)** | Daily, weekly, or monthly assessment trends from `v_assessment_trends`. |
+| `GET` | `/api/analytics/export` | **Admin Only (`admin`)** | Sanitized, anonymized assessment telemetry CSV download for Power BI Desktop. |
 
 ---
 
@@ -226,17 +235,32 @@ Open your web browser and navigate to:
 
 ## 8. Automated Testing Guide
 
-Run the comprehensive test suites verifying all 51 automated security and functional scenarios:
+Run the comprehensive test suites verifying all 87 automated security, cloud, and analytics test scenarios:
 
-### Run the Phase 3 Security Suite (29 Tests)
+### Run Individual Test Suites
 ```powershell
-python test_phase3.py
+# Phase 1: Core Heuristic Detection Engine (8 Tests)
+python -m unittest test_engine.py
+
+# Phase 2: Relational SQLite Storage & History Isolation (14 Tests)
+python -m unittest test_phase2.py
+
+# Phase 3: Authentication, RBAC, CSRF & Application Hardening (29 Tests)
+python -m unittest test_phase3.py
+
+# Phase 4, Task 2: Azure SQL Dual-Mode Database Support (11 Tests)
+python -m unittest test_azure_sql.py
+
+# Phase 4, Task 3: Azure Blob Storage Integration & Safe Exports (13 Tests)
+python -m unittest test_blob_storage.py
+
+# Phase 4, Task 4: Power BI Analytics Views & Telemetry CSV (12 Tests)
+python -m unittest test_analytics_powerbi.py
 ```
-*Tests registration validation, password hashing, generic login responses, session clearing, RBAC access denial, parameter tampering protection, CSRF token validation, privacy guarantees, SQL injection resistance, audit log hygiene, and security headers.*
 
-### Run All Platform Test Suites (51 Tests Total)
+### Run All 87 Platform Test Suites Simultaneously
 ```powershell
-python -m unittest test_engine.py test_phase2.py test_phase3.py
+python -m unittest test_engine.py test_phase2.py test_phase3.py test_azure_sql.py test_blob_storage.py test_analytics_powerbi.py
 ```
 
 ---

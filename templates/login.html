@@ -60,6 +60,25 @@
             </div>
             {% endif %}
 
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, msg in messages %}
+                <div class="alert-banner alert-{{ category if category != 'message' else 'success' }}" role="alert">
+                    <div class="alert-icon" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                    </div>
+                    <div class="alert-content">
+                        <strong class="alert-title">{{ 'Success' if category == 'success' else 'Notification' }}</strong>
+                        <p class="alert-text">{{ msg }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+
             {% if success_msg %}
             <div class="alert-banner alert-success" role="alert">
                 <div class="alert-icon" aria-hidden="true">

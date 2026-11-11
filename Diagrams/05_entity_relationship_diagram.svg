@@ -1,0 +1,223 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1350 920" width="100%" height="100%" style="background-color: #070B14; font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;">
+    
+    <defs>
+        <!-- Arrowhead Marker (Cyan) -->
+        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 10 5 L 0 9 z" fill="#38BDF8"/>
+        </marker>
+        <!-- Arrowhead Marker (Green) -->
+        <marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 10 5 L 0 9 z" fill="#00F090"/>
+        </marker>
+        <!-- Arrowhead Marker (Purple) -->
+        <marker id="arrow-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 10 5 L 0 9 z" fill="#818CF8"/>
+        </marker>
+        <!-- Arrowhead Marker (Amber) -->
+        <marker id="arrow-amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 10 5 L 0 9 z" fill="#F59E0B"/>
+        </marker>
+        <!-- Card Drop Shadow -->
+        <filter id="shadow" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+            <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.45"/>
+        </filter>
+        <!-- Glow Filter -->
+        <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="3" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
+    </defs>
+
+    <!-- Background Canvas -->
+    <rect width="1350" height="920" fill="#070B14"/>
+    <rect x="15" y="15" width="1320" height="890" rx="12" fill="none" stroke="#1E293B" stroke-width="1.5"/>
+
+    <!-- Title Block -->
+    <text x="675" y="48" text-anchor="middle" fill="#00F090" font-size="24" font-weight="700" letter-spacing="1">TRUSTMESH — ENTITY-RELATIONSHIP (ER) DIAGRAM</text>
+    <text x="675" y="72" text-anchor="middle" fill="#94A3B8" font-size="13">Normalized Relational Model in 3NF (Tables, Primary/Foreign Keys, Constraints &amp; Cardinalities)</text>
+
+    <!-- ENTITY 1: ROLES -->
+    <g transform="translate(50, 110)">
+        <rect width="250" height="110" rx="6" fill="#0F172A" stroke="#38BDF8" stroke-width="1.5" filter="url(#shadow)"/>
+        <rect width="250" height="28" rx="6" fill="#0C4A6E"/>
+        <text x="125" y="19" text-anchor="middle" fill="#BAE6FD" font-size="12" font-weight="700">ROLES</text>
+        <text x="15" y="48" fill="#38BDF8" font-size="11" font-weight="700">&#128273; role_id : INTEGER [PK]</text>
+        <text x="15" y="68" fill="#F8FAFC" font-size="11">&#9656; role_name : TEXT [UQ, NOT NULL]</text>
+        <text x="15" y="88" fill="#94A3B8" font-size="10">&#9656; created_at : DATETIME</text>
+    </g>
+
+    <!-- ENTITY 2: USERS -->
+    <g transform="translate(380, 110)">
+        <rect width="270" height="170" rx="6" fill="#0F172A" stroke="#38BDF8" stroke-width="1.5" filter="url(#shadow)"/>
+        <rect width="270" height="28" rx="6" fill="#0C4A6E"/>
+        <text x="135" y="19" text-anchor="middle" fill="#BAE6FD" font-size="12" font-weight="700">USERS</text>
+        <text x="15" y="48" fill="#38BDF8" font-size="11" font-weight="700">&#128273; user_id : INTEGER [PK]</text>
+        <text x="15" y="68" fill="#818CF8" font-size="11" font-weight="700">&#128279; role_id : INTEGER [FK -&gt; ROLES]</text>
+        <text x="15" y="88" fill="#F8FAFC" font-size="11">&#9656; email : TEXT [UQ, NOT NULL]</text>
+        <text x="15" y="106" fill="#F8FAFC" font-size="11">&#9656; password_hash : TEXT [NOT NULL]</text>
+        <text x="15" y="124" fill="#F8FAFC" font-size="11">&#9656; display_name : TEXT [NOT NULL]</text>
+        <text x="15" y="142" fill="#94A3B8" font-size="10">&#9656; account_status : TEXT [DEFAULT 'ACTIVE']</text>
+        <text x="15" y="160" fill="#94A3B8" font-size="10">&#9656; created_at : DATETIME</text>
+    </g>
+
+    <!-- ENTITY 3: INCIDENTS -->
+    <g transform="translate(730, 110)">
+        <rect width="270" height="150" rx="6" fill="#0F172A" stroke="#00F090" stroke-width="1.5" filter="url(#shadow)"/>
+        <rect width="270" height="28" rx="6" fill="#064E3B"/>
+        <text x="135" y="19" text-anchor="middle" fill="#A7F3D0" font-size="12" font-weight="700">INCIDENTS</text>
+        <text x="15" y="48" fill="#00F090" font-size="11" font-weight="700">&#128273; incident_id : INTEGER [PK]</text>
+        <text x="15" y="68" fill="#818CF8" font-size="11" font-weight="700">&#128279; user_id : INTEGER [FK nullable]</text>
+        <text x="15" y="88" fill="#F8FAFC" font-size="11">&#9656; content_type : TEXT [NOT NULL]</text>
+        <text x="15" y="106" fill="#F8FAFC" font-size="11">&#9656; content_fingerprint : TEXT (SHA-256)</text>
+        <text x="15" y="124" fill="#64748B" font-size="10">&#9888; Raw Text Discarded (Privacy Rule)</text>
+        <text x="15" y="142" fill="#94A3B8" font-size="10">&#9656; created_at : DATETIME</text>
+    </g>
+
+    <!-- ENTITY 4: RISK_SCORES -->
+    <g transform="translate(1070, 110)">
+        <rect width="240" height="150" rx="6" fill="#0F172A" stroke="#00F090" stroke-width="1.5" filter="url(#shadow)"/>
+        <rect width="240" height="28" rx="6" fill="#064E3B"/>
+        <text x="120" y="19" text-anchor="middle" fill="#A7F3D0" font-size="12" font-weight="700">RISK_SCORES</text>
+        <text x="15" y="48" fill="#00F090" font-size="11" font-weight="700">&#128273; score_id : INTEGER [PK]</text>
+        <text x="15" y="68" fill="#818CF8" font-size="11" font-weight="700">&#128279; incident_id : INTEGER [FK, UQ]</text>
+        <text x="15" y="88" fill="#F8FAFC" font-size="11">&#9656; risk_score : INTEGER (0..100)</text>
+        <text x="15" y="106" fill="#F8FAFC" font-size="11">&#9656; risk_level : TEXT [NOT NULL]</text>
+        <text x="15" y="124" fill="#94A3B8" font-size="10">&#9656; recommendation_stored : TEXT</text>
+        <text x="15" y="142" fill="#94A3B8" font-size="10">&#9656; engine_version : TEXT</text>
+    </g>
+
+    <!-- ENTITY 5: AUDIT_LOGS -->
+    <g transform="translate(50, 420)">
+        <rect width="270" height="170" rx="6" fill="#0F172A" stroke="#EF4444" stroke-width="1.5" filter="url(#shadow)"/>
+        <rect width="270" height="28" rx="6" fill="#3F1219"/>
+        <text x="135" y="19" text-anchor="middle" fill="#FCA5A5" font-size="12" font-weight="700">AUDIT_LOGS</text>
+        <text x="15" y="48" fill="#EF4444" font-size="11" font-weight="700">&#128273; audit_id : INTEGER [PK]</text>
+        <text x="15" y="68" fill="#818CF8" font-size="11" font-weight="700">&#128279; user_id : INTEGER [FK nullable]</text>
+        <text x="15" y="88" fill="#F8FAFC" font-size="11">&#9656; event_type : TEXT [NOT NULL]</text>
+        <text x="15" y="106" fill="#F8FAFC" font-size="11">&#9656; event_status : TEXT [NOT NULL]</text>
+        <text x="15" y="124" fill="#F8FAFC" font-size="11">&#9656; details : TEXT</text>
+        <text x="15" y="142" fill="#64748B" font-size="10">&#9888; Zero Passwords/Secrets Logged</text>
+        <text x="15" y="160" fill="#94A3B8" font-size="10">&#9656; created_at : DATETIME</text>
+    </g>
+
+    <!-- ENTITY 6: INCIDENT_SIGNALS (Associative M:N Table) -->
+    <g transform="translate(730, 420)">
+        <rect width="270" height="135" rx="6" fill="#0F172A" stroke="#10B981" stroke-width="1.5" filter="url(#shadow)"/>
+        <rect width="270" height="28" rx="6" fill="#064E3B"/>
+        <text x="135" y="19" text-anchor="middle" fill="#A7F3D0" font-size="12" font-weight="700">INCIDENT_SIGNALS (M:N)</text>
+        <text x="15" y="48" fill="#10B981" font-size="11" font-weight="700">&#128273;&#128279; incident_id : INTEGER [PK, FK]</text>
+        <text x="15" y="68" fill="#10B981" font-size="11" font-weight="700">&#128273;&#128279; signal_id : INTEGER [PK, FK]</text>
+        <text x="15" y="88" fill="#F8FAFC" font-size="11">&#9656; weight_applied : INTEGER</text>
+        <text x="15" y="106" fill="#94A3B8" font-size="10">&#9656; detected_at : DATETIME</text>
+        <text x="15" y="124" fill="#64748B" font-size="10">Composite PK: (incident_id, signal_id)</text>
+    </g>
+
+    <!-- ENTITY 7: SIGNAL_TYPES -->
+    <g transform="translate(1070, 420)">
+        <rect width="240" height="150" rx="6" fill="#0F172A" stroke="#10B981" stroke-width="1.5" filter="url(#shadow)"/>
+        <rect width="240" height="28" rx="6" fill="#064E3B"/>
+        <text x="120" y="19" text-anchor="middle" fill="#A7F3D0" font-size="12" font-weight="700">SIGNAL_TYPES</text>
+        <text x="15" y="48" fill="#10B981" font-size="11" font-weight="700">&#128273; signal_id : INTEGER [PK]</text>
+        <text x="15" y="68" fill="#F8FAFC" font-size="11">&#9656; signal_code : TEXT [UQ, NOT NULL]</text>
+        <text x="15" y="88" fill="#F8FAFC" font-size="11">&#9656; signal_name : TEXT [NOT NULL]</text>
+        <text x="15" y="106" fill="#F8FAFC" font-size="11">&#9656; default_weight : INTEGER</text>
+        <text x="15" y="124" fill="#94A3B8" font-size="10">&#9656; category : TEXT</text>
+        <text x="15" y="142" fill="#94A3B8" font-size="10">&#9656; description : TEXT</text>
+    </g>
+
+    <!-- ENTITY 8: EXPORTED_REPORTS -->
+    <g transform="translate(380, 420)">
+        <rect width="270" height="170" rx="6" fill="#0F172A" stroke="#818CF8" stroke-width="1.5" filter="url(#shadow)"/>
+        <rect width="270" height="28" rx="6" fill="#312E81"/>
+        <text x="135" y="19" text-anchor="middle" fill="#C7D2FE" font-size="12" font-weight="700">EXPORTED_REPORTS</text>
+        <text x="15" y="48" fill="#818CF8" font-size="11" font-weight="700">&#128273; report_id : INTEGER [PK]</text>
+        <text x="15" y="68" fill="#818CF8" font-size="11" font-weight="700">&#128279; assessment_id : INTEGER [FK]</text>
+        <text x="15" y="88" fill="#818CF8" font-size="11" font-weight="700">&#128279; user_id : INTEGER [FK]</text>
+        <text x="15" y="106" fill="#F8FAFC" font-size="11">&#9656; storage_status : TEXT ('LOCAL'|'BLOB')</text>
+        <text x="15" y="124" fill="#94A3B8" font-size="10">&#9656; blob_url : TEXT</text>
+        <text x="15" y="142" fill="#94A3B8" font-size="10">&#9656; local_filepath : TEXT</text>
+        <text x="15" y="160" fill="#94A3B8" font-size="10">&#9656; exported_at : DATETIME</text>
+    </g>
+
+    <!-- ==================== RELATIONSHIPS & CARDINALITY LINES ==================== -->
+    <!-- ROLES (1) to USERS (N) -->
+    <line x1="300" y1="165" x2="380" y2="165" stroke="#38BDF8" stroke-width="1.8"/>
+    <circle cx="308" cy="165" r="4" fill="#38BDF8"/>
+    <!-- Crow's foot at USERS end -->
+    <path d="M 370 157 L 380 165 L 370 173 M 365 157 L 365 173" stroke="#38BDF8" stroke-width="1.8" fill="none"/>
+    <text x="340" y="153" text-anchor="middle" fill="#38BDF8" font-size="10" font-weight="600">1:N</text>
+
+    <!-- USERS (1) to INCIDENTS (N) -->
+    <line x1="650" y1="180" x2="730" y2="180" stroke="#00F090" stroke-width="1.8"/>
+    <circle cx="658" cy="180" r="4" fill="#00F090"/>
+    <path d="M 720 172 L 730 180 L 720 188 M 715 172 L 715 188" stroke="#00F090" stroke-width="1.8" fill="none"/>
+    <text x="690" y="170" text-anchor="middle" fill="#00F090" font-size="10" font-weight="600">1:N</text>
+
+    <!-- INCIDENTS (1) to RISK_SCORES (1) -->
+    <line x1="1000" y1="180" x2="1070" y2="180" stroke="#00F090" stroke-width="1.8"/>
+    <circle cx="1008" cy="180" r="4" fill="#00F090"/>
+    <circle cx="1062" cy="180" r="4" fill="#00F090"/>
+    <line x1="1066" y1="172" x2="1066" y2="188" stroke="#00F090" stroke-width="1.8"/>
+    <text x="1035" y="170" text-anchor="middle" fill="#00F090" font-size="10" font-weight="600">1:1</text>
+
+    <!-- USERS (1) to AUDIT_LOGS (N) -->
+    <path d="M 450 280 L 450 350 L 185 350 L 185 420" stroke="#EF4444" stroke-width="1.8" fill="none"/>
+    <circle cx="450" cy="288" r="4" fill="#EF4444"/>
+    <path d="M 177 410 L 185 420 L 193 410" stroke="#EF4444" stroke-width="1.8" fill="none"/>
+    <text x="320" y="340" text-anchor="middle" fill="#EF4444" font-size="10" font-weight="600">1:N (Audit Trail)</text>
+
+    <!-- INCIDENTS (1) to INCIDENT_SIGNALS (N) -->
+    <line x1="865" y1="260" x2="865" y2="420" stroke="#10B981" stroke-width="1.8"/>
+    <circle cx="865" cy="268" r="4" fill="#10B981"/>
+    <path d="M 857 410 L 865 420 L 873 410" stroke="#10B981" stroke-width="1.8" fill="none"/>
+    <text x="880" y="340" fill="#10B981" font-size="10" font-weight="600">1:N</text>
+
+    <!-- SIGNAL_TYPES (1) to INCIDENT_SIGNALS (N) -->
+    <line x1="1070" y1="485" x2="1000" y2="485" stroke="#10B981" stroke-width="1.8"/>
+    <circle cx="1062" cy="485" r="4" fill="#10B981"/>
+    <path d="M 1010 477 L 1000 485 L 1010 493" stroke="#10B981" stroke-width="1.8" fill="none"/>
+    <text x="1035" y="475" text-anchor="middle" fill="#10B981" font-size="10" font-weight="600">1:N</text>
+
+    <!-- USERS & INCIDENTS to EXPORTED_REPORTS -->
+    <line x1="515" y1="280" x2="515" y2="420" stroke="#818CF8" stroke-width="1.8"/>
+    <circle cx="515" cy="288" r="4" fill="#818CF8"/>
+    <path d="M 507 410 L 515 420 L 523 410" stroke="#818CF8" stroke-width="1.8" fill="none"/>
+    <text x="535" y="350" fill="#818CF8" font-size="10" font-weight="600">1:N</text>
+
+    <!-- Legend Box at Bottom -->
+    <g transform="translate(50, 640)">
+        <rect width="1250" height="230" rx="8" fill="#0F172A" stroke="#334155" stroke-width="1.2"/>
+        <rect width="1250" height="26" rx="8" fill="#1E293B"/>
+        <text x="15" y="18" fill="#F8FAFC" font-size="11" font-weight="700">DATABASE VIEWS (VIRTUAL SCHEMA COMPUTATIONS) &amp; RELATIONAL ARCHITECTURE</text>
+
+        <rect x="25" y="40" width="280" height="85" rx="5" fill="#1E293B" stroke="#334155" stroke-width="1"/>
+        <text x="35" y="58" fill="#00F090" font-size="11" font-weight="700">v_incident_summary</text>
+        <text x="35" y="75" fill="#94A3B8" font-size="10">Joins INCIDENTS, RISK_SCORES,</text>
+        <text x="35" y="90" fill="#94A3B8" font-size="10">USERS, and aggregated signals</text>
+        <text x="35" y="108" fill="#64748B" font-size="9">Powers personal dashboard history</text>
+
+        <rect x="330" y="40" width="280" height="85" rx="5" fill="#1E293B" stroke="#334155" stroke-width="1"/>
+        <text x="340" y="58" fill="#F59E0B" font-size="11" font-weight="700">v_analytics_overview</text>
+        <text x="340" y="75" fill="#94A3B8" font-size="10">Aggregates total incidents, average</text>
+        <text x="340" y="90" fill="#94A3B8" font-size="10">score, high risk &amp; suspicious counts</text>
+        <text x="340" y="108" fill="#64748B" font-size="9">Powers Power BI summary KPI cards</text>
+
+        <rect x="635" y="40" width="280" height="85" rx="5" fill="#1E293B" stroke="#334155" stroke-width="1"/>
+        <text x="645" y="58" fill="#F59E0B" font-size="11" font-weight="700">v_risk_level_distribution</text>
+        <text x="645" y="75" fill="#94A3B8" font-size="10">Groups incident count and</text>
+        <text x="645" y="90" fill="#94A3B8" font-size="10">percentage by risk classification</text>
+        <text x="645" y="108" fill="#64748B" font-size="9">Powers Power BI Donut &amp; Bar charts</text>
+
+        <rect x="940" y="40" width="285" height="85" rx="5" fill="#1E293B" stroke="#F59E0B" stroke-width="1"/>
+        <text x="950" y="58" fill="#F59E0B" font-size="11" font-weight="700">v_risk_signal_frequency</text>
+        <text x="950" y="75" fill="#94A3B8" font-size="10">Calculates detection count and</text>
+        <text x="950" y="90" fill="#94A3B8" font-size="10">prevalence percentage per signal</text>
+        <text x="950" y="108" fill="#64748B" font-size="9">Powers top threat signal visualizer</text>
+
+        <rect x="25" y="135" width="1200" height="80" rx="5" fill="#070B14" stroke="#00F090" stroke-width="1"/>
+        <text x="40" y="155" fill="#00F090" font-size="11" font-weight="700">ACID Compliance &amp; Integrity Constraints Summary:</text>
+        <text x="40" y="173" fill="#94A3B8" font-size="10">&#10004; CHECK (risk_score &gt;= 0 AND risk_score &lt;= 100) enforces strict score boundaries in SQLite and Azure SQL.</text>
+        <text x="40" y="190" fill="#94A3B8" font-size="10">&#10004; ON DELETE CASCADE on foreign keys automatically cleans up orphaned risk scores and signal associations.</text>
+        <text x="40" y="206" fill="#94A3B8" font-size="10">&#10004; Privacy Rule: Zero plain message/URL text columns exist in the physical schema; only cryptographic fingerprints are persisted.</text>
+    </g>
+</svg>

@@ -14,13 +14,22 @@ Features:
 Developed for educational and demonstration purposes.
 """
 
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 from functools import wraps
+import io
 import ipaddress
+import json
 import logging
 import os
 import re
 from urllib.parse import urlparse
+
+# Load environment configuration from .env
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 
 from flask import (
     Flask,
@@ -29,27 +38,51 @@ from flask import (
     redirect,
     render_template,
     request,
+    send_file,
     session,
     url_for,
 )
 from flask_wtf.csrf import CSRFError, CSRFProtect
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from config import get_config
 from database import (
     DEFAULT_DB_PATH,
     check_db_health,
+    create_exported_report,
     create_user,
     generate_content_fingerprint,
     get_admin_audit_logs,
     get_admin_overview,
     get_admin_users,
     get_analytics,
+    get_analytics_overview,
+    get_assessment_for_export,
+    get_assessment_trends,
+    get_database_mode,
+    get_database_status,
+    get_exported_report_by_id,
+    get_exported_reports_by_user,
     get_history,
+    get_risk_level_distribution,
+    get_risk_signal_frequency,
     get_user_by_email,
     get_user_by_id,
     init_db,
     log_audit_event,
     save_analysis_transaction,
+    update_report_storage_status,
+)
+from services.analytics_service import (
+    generate_anonymized_csv,
+    get_analytics_dashboard_bundle,
+)
+from services.blob_storage_service import (
+    check_blob_storage_health,
+    download_report,
+    generate_safe_blob_name,
+    is_blob_storage_configured,
+    upload_report,
 )
 
 # Engine Version
@@ -58,16 +91,8 @@ ENGINE_VERSION = "3.0.0"
 # Initialize Flask application
 app = Flask(__name__)
 
-# Security Configuration
-app.config["SECRET_KEY"] = os.environ.get(
-    "SECRET_KEY",
-    "trustmesh-local-dev-stable-secret-key-phase3-2026"
-)
-app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(hours=2)
-app.config["SESSION_COOKIE_HTTPONLY"] = True
-app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
-app.config["SESSION_COOKIE_SECURE"] = os.environ.get("COOKIE_SECURE", "").lower() == "true"
-app.config["WTF_CSRF_TIME_LIMIT"] = 3600
+# Apply Centralized Environment Configuration (Development, Production, Testing)
+app.config.from_object(get_config())
 
 # Initialize CSRF Protection
 csrf = CSRFProtect(app)
@@ -201,7 +226,7 @@ SPOOFED_BRANDS = [
 
 def get_active_db_path() -> str:
     """Returns the configured or default database file path."""
-    return app.config.get("DATABASE_PATH", DEFAULT_DB_PATH)
+    return app.config.get("DATABASE_PATH") or os.environ.get("DATABASE_PATH") or DEFAULT_DB_PATH
 
 
 def extract_urls(text: str) -> list[str]:
@@ -373,8 +398,13 @@ def analyze_interaction(text: str) -> dict:
 @app.context_processor
 def inject_auth_state():
     """Provides current_user identity and authentication status to all templates."""
+    db_path = get_active_db_path()
+    db_status = get_database_status(db_path=db_path)
+    state = {
+        "db_status": db_status
+    }
     if "user_id" in session:
-        return {
+        state.update({
             "is_authenticated": True,
             "current_user": {
                 "user_id": session["user_id"],
@@ -382,11 +412,13 @@ def inject_auth_state():
                 "email": session.get("email"),
                 "role": session.get("role", "user")
             }
-        }
-    return {
-        "is_authenticated": False,
-        "current_user": None
-    }
+        })
+    else:
+        state.update({
+            "is_authenticated": False,
+            "current_user": None
+        })
+    return state
 
 
 def login_required(f):
@@ -487,6 +519,19 @@ def handle_500(err):
         code=500,
         message="An internal server error occurred. Please try again later."
     ), 500
+
+
+@app.errorhandler(413)
+def handle_413(err):
+    """Handles request payload size exceeding MAX_CONTENT_LENGTH (16 MB)."""
+    logger.warning("Request payload exceeded size ceiling: %s", str(err))
+    if request.is_json or request.path.startswith("/api/"):
+        return jsonify({"error": "Request payload exceeds maximum allowed size limit (16 MB)."}), 413
+    return render_template(
+        "error.html",
+        code=413,
+        message="Payload Too Large: The submitted data exceeds the maximum allowed upload limit."
+    ), 413
 
 
 # ---------------------------------------------------------------------------
@@ -637,12 +682,14 @@ def admin_dashboard():
     overview = get_admin_overview(db_path=db_path)
     users = get_admin_users(limit=50, db_path=db_path)
     audit_logs = get_admin_audit_logs(limit=50, db_path=db_path)
+    analytics_bundle = get_analytics_dashboard_bundle(db_path=db_path)
 
     return render_template(
         "admin.html",
         overview=overview,
         users=users,
-        audit_logs=audit_logs
+        audit_logs=audit_logs,
+        analytics_bundle=analytics_bundle
     )
 
 
@@ -722,6 +769,7 @@ def analyze():
 
         response_data = {
             "incident_id": result["incident_id"],
+            "assessment_id": assessment_id,
             "score": result["score"],
             "level": result["level"],
             "findings": result["findings"],
@@ -800,18 +848,354 @@ def api_admin_audit_logs():
         return jsonify({"error": "Unable to retrieve audit logs."}), 500
 
 
+# ---------------------------------------------------------------------------
+# Power BI & Administrative Analytics APIs (Phase 4, Task 4)
+# ---------------------------------------------------------------------------
+
+@app.route("/api/analytics/overview", methods=["GET"])
+@role_required("admin")
+def api_analytics_overview():
+    """
+    Returns platform-wide KPI aggregate metrics from v_analytics_overview view.
+    Restricted to system administrators.
+    """
+    try:
+        db_path = get_active_db_path()
+        overview = get_analytics_overview(db_path=db_path)
+        return jsonify({"overview": overview}), 200
+    except Exception as exc:
+        logger.error("Failed to fetch analytics overview: %s", str(exc))
+        return jsonify({"error": "Unable to compute analytics overview."}), 500
+
+
+@app.route("/api/analytics/risk-distribution", methods=["GET"])
+@role_required("admin")
+def api_analytics_risk_distribution():
+    """
+    Returns assessment distribution across risk levels from v_risk_level_distribution.
+    Restricted to system administrators.
+    """
+    try:
+        db_path = get_active_db_path()
+        distribution = get_risk_level_distribution(db_path=db_path)
+        return jsonify({"risk_distribution": distribution}), 200
+    except Exception as exc:
+        logger.error("Failed to fetch risk distribution: %s", str(exc))
+        return jsonify({"error": "Unable to compute risk distribution."}), 500
+
+
+@app.route("/api/analytics/risk-signals", methods=["GET"])
+@role_required("admin")
+def api_analytics_risk_signals():
+    """
+    Returns detection frequency and prevalence for all risk signals from v_risk_signal_frequency.
+    Restricted to system administrators.
+    """
+    try:
+        db_path = get_active_db_path()
+        signals = get_risk_signal_frequency(db_path=db_path)
+        return jsonify({"risk_signals": signals}), 200
+    except Exception as exc:
+        logger.error("Failed to fetch risk signal analytics: %s", str(exc))
+        return jsonify({"error": "Unable to compute risk signal frequencies."}), 500
+
+
+@app.route("/api/analytics/trends", methods=["GET"])
+@role_required("admin")
+def api_analytics_trends():
+    """
+    Returns time-based assessment counts and risk trends.
+    Supports ?interval=daily (default), ?interval=weekly, or ?interval=monthly.
+    Restricted to system administrators.
+    """
+    interval = request.args.get("interval", "daily").lower().strip()
+    if interval not in ("daily", "weekly", "monthly"):
+        return jsonify({"error": "Invalid interval parameter. Allowed values: daily, weekly, monthly."}), 400
+
+    try:
+        db_path = get_active_db_path()
+        trends = get_assessment_trends(interval=interval, db_path=db_path)
+        return jsonify({
+            "interval": interval,
+            "trends": trends
+        }), 200
+    except Exception as exc:
+        logger.error("Failed to fetch assessment trends (interval=%s): %s", interval, str(exc))
+        return jsonify({"error": "Unable to compute assessment trends."}), 500
+
+
+@app.route("/api/analytics/export", methods=["GET"])
+@role_required("admin")
+def api_analytics_export():
+    """
+    Exports sanitized, anonymized assessment telemetry as CSV for Power BI Desktop.
+    Guarantees zero leakage of user identities, emails, passwords, raw text, or full URLs.
+    Restricted to system administrators.
+    """
+    try:
+        db_path = get_active_db_path()
+        csv_text, count = generate_anonymized_csv(db_path=db_path)
+
+        log_audit_event(
+            session.get("user_id"),
+            "ANALYTICS_CSV_EXPORTED",
+            "SUCCESS",
+            f"Admin exported {count} anonymized assessment records for Power BI",
+            db_path=db_path
+        )
+
+        return send_file(
+            io.BytesIO(csv_text.encode("utf-8")),
+            mimetype="text/csv",
+            as_attachment=True,
+            download_name="trustmesh_analytics_export.csv"
+        )
+    except Exception as exc:
+        logger.error("Failed to export analytics CSV: %s", str(exc))
+        return jsonify({"error": "Unable to generate analytics CSV export."}), 500
+
+
 @app.route("/health", methods=["GET"])
 def health():
-    """Returns minimal system and database connectivity status."""
+    """Returns system, database mode, and connectivity health status."""
     db_path = get_active_db_path()
-    is_healthy = check_db_health(db_path=db_path)
-    
+    status_info = get_database_status(db_path=db_path)
+    is_healthy = status_info["status"] == "connected"
+    storage_info = check_blob_storage_health()
+
     status_code = 200 if is_healthy else 503
     return jsonify({
         "status": "healthy" if is_healthy else "unhealthy",
+        "environment": app.config.get("ENV_NAME", "development"),
         "database": "connected" if is_healthy else "disconnected",
+        "database_mode": status_info["mode"],
+        "database_status_indicator": status_info["indicator"],
+        "database_details": status_info["details"],
+        "is_cloud": status_info["is_cloud"],
+        "storage_status": storage_info["status"],
+        "storage_indicator": storage_info["indicator"],
+        "storage_details": storage_info["details"],
         "engine_version": ENGINE_VERSION
     }), status_code
+
+
+# ---------------------------------------------------------------------------
+# Report Export & Azure Blob Storage Routes (Phase 4, Task 3)
+# ---------------------------------------------------------------------------
+
+@app.route("/api/reports/export", methods=["POST"])
+@login_required
+def api_export_report():
+    """
+    Exports an assessment report to JSON.
+    Allows authenticated users to optionally archive their report to Azure Blob Storage.
+    Never exposes passwords, session tokens, or raw user message content.
+    """
+    if not request.is_json:
+        return jsonify({"error": "Invalid request body. Expected JSON."}), 400
+
+    data = request.get_json(silent=True) or {}
+    assessment_id = data.get("assessment_id")
+    save_to_cloud = bool(data.get("save_to_cloud", False))
+
+    if not assessment_id or not isinstance(assessment_id, int):
+        return jsonify({"error": "Valid assessment_id (integer) is required."}), 400
+
+    db_path = get_active_db_path()
+    active_user_id = session["user_id"]
+
+    # Verify assessment exists and belongs to current user
+    assessment = get_assessment_for_export(assessment_id, user_id=active_user_id, db_path=db_path)
+    if not assessment:
+        # Check if assessment exists at all (to distinguish 404 from 403)
+        any_asm = get_assessment_for_export(assessment_id, user_id=None, db_path=db_path)
+        if any_asm:
+            log_audit_event(
+                active_user_id,
+                "UNAUTHORIZED_REPORT_EXPORT",
+                "FORBIDDEN",
+                f"User attempted to export Assessment #{assessment_id} belonging to another user",
+                db_path=db_path
+            )
+            return jsonify({"error": "Access denied: You do not have permission to export this assessment."}), 403
+        return jsonify({"error": f"Assessment #{assessment_id} not found."}), 404
+
+    # Build structured, standardized export payload
+    report_payload = {
+        "report_metadata": {
+            "platform": "TRUSTMESH AI-Powered Personal Digital Trust Platform",
+            "report_version": "1.0.0",
+            "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+            "exported_by_user": session.get("display_name", "User"),
+            "content_fingerprint_sha256": assessment["content_fingerprint"],
+        },
+        "assessment_details": {
+            "assessment_id": assessment["assessment_id"],
+            "incident_id": assessment["incident_id"],
+            "incident_type": assessment["content_type"],
+            "created_at_utc": str(assessment["assessment_time"]),
+            "risk_score": assessment["risk_score"],
+            "risk_level": assessment["risk_level"],
+            "engine_version": assessment["engine_version"],
+        },
+        "detected_risk_signals": assessment.get("signals", []),
+        "actionable_guidance": {
+            "recommendation": assessment["recommendation"],
+            "disclaimer": "This preliminary rule-based assessment cannot guarantee that content is safe or fraudulent."
+        }
+    }
+
+    # Encode report to JSON bytes
+    json_bytes = json.dumps(report_payload, indent=2).encode("utf-8")
+    blob_name = generate_safe_blob_name(active_user_id, assessment_id, "json")
+
+    storage_status = "LOCAL"
+    storage_message = "Report exported and ready for local download."
+
+    if save_to_cloud:
+        # User requested cloud storage in Azure Blob Storage
+        if is_blob_storage_configured():
+            upload_ok, upload_msg = upload_report(blob_name, json_bytes, "application/json")
+            if upload_ok:
+                storage_status = "UPLOADED"
+                storage_message = "Report successfully saved to Azure Blob Storage."
+            else:
+                storage_status = "LOCAL"
+                storage_message = f"Cloud upload unavailable ({upload_msg}). Report saved locally."
+        else:
+            storage_status = "LOCAL"
+            storage_message = "Azure Blob Storage is not configured in this environment. Report saved locally."
+
+    # Persist report tracking metadata in database
+    try:
+        report_id = create_exported_report(
+            user_id=active_user_id,
+            assessment_id=assessment_id,
+            blob_name=blob_name,
+            file_type="json",
+            file_size=len(json_bytes),
+            storage_status=storage_status,
+            db_path=db_path
+        )
+        log_audit_event(
+            active_user_id,
+            "REPORT_EXPORTED",
+            "SUCCESS",
+            f"Exported Report #{report_id} for Assessment #{assessment_id} (Storage: {storage_status})",
+            db_path=db_path
+        )
+    except Exception as exc:
+        logger.error("Failed to record exported report in database: %s", str(exc))
+        return jsonify({"error": "Failed to persist report record in database."}), 500
+
+    return jsonify({
+        "success": True,
+        "report_id": report_id,
+        "assessment_id": assessment_id,
+        "blob_name": blob_name,
+        "storage_status": storage_status,
+        "message": storage_message,
+        "download_url": url_for("api_download_report", report_id=report_id),
+        "report_data": report_payload
+    }), 200
+
+
+@app.route("/api/reports/<int:report_id>/download", methods=["GET"])
+@login_required
+def api_download_report(report_id: int):
+    """
+    Downloads an assessment report file.
+    Enforces server-side ownership verification: users can only download their own reports.
+    Retrieves from Azure Blob Storage if uploaded; otherwise uses local fallback.
+    """
+    db_path = get_active_db_path()
+    active_user_id = session["user_id"]
+
+    report_record = get_exported_report_by_id(report_id, db_path=db_path)
+    if not report_record:
+        return jsonify({"error": f"Report #{report_id} not found."}), 404
+
+    # Ownership check: standard users cannot download another's report
+    if report_record["user_id"] != active_user_id and session.get("role") != "admin":
+        log_audit_event(
+            active_user_id,
+            "UNAUTHORIZED_REPORT_DOWNLOAD",
+            "FORBIDDEN",
+            f"User attempted unauthorized download of Report #{report_id} (Owned by User #{report_record['user_id']})",
+            db_path=db_path
+        )
+        return jsonify({"error": "Access denied: You do not own this report."}), 403
+
+    data_bytes = None
+    blob_name = report_record["blob_name"]
+
+    # 1. Try retrieving from Azure Blob Storage if status is UPLOADED
+    if report_record["storage_status"] == "UPLOADED":
+        downloaded, msg = download_report(blob_name)
+        if downloaded:
+            data_bytes = downloaded
+        else:
+            logger.warning("Blob retrieval failed for Report #%d ('%s'): %s. Using local regeneration fallback.",
+                           report_id, blob_name, msg)
+
+    # 2. Local fallback if not uploaded or cloud retrieval was unavailable
+    if data_bytes is None:
+        assessment = get_assessment_for_export(report_record["assessment_id"], user_id=None, db_path=db_path)
+        if not assessment:
+            return jsonify({"error": "Associated assessment record is no longer available."}), 404
+
+        fallback_payload = {
+            "report_metadata": {
+                "platform": "TRUSTMESH AI-Powered Personal Digital Trust Platform",
+                "report_version": "1.0.0",
+                "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+                "exported_by_user": session.get("display_name", "User"),
+                "content_fingerprint_sha256": assessment["content_fingerprint"],
+                "source": "Local Database Fallback"
+            },
+            "assessment_details": {
+                "assessment_id": assessment["assessment_id"],
+                "incident_id": assessment["incident_id"],
+                "incident_type": assessment["content_type"],
+                "created_at_utc": str(assessment["assessment_time"]),
+                "risk_score": assessment["risk_score"],
+                "risk_level": assessment["risk_level"],
+                "engine_version": assessment["engine_version"],
+            },
+            "detected_risk_signals": assessment.get("signals", []),
+            "actionable_guidance": {
+                "recommendation": assessment["recommendation"],
+                "disclaimer": "This preliminary rule-based assessment cannot guarantee that content is safe or fraudulent."
+            }
+        }
+        data_bytes = json.dumps(fallback_payload, indent=2).encode("utf-8")
+
+    filename = f"trustmesh_report_{report_record['assessment_id']}.json"
+    return send_file(
+        io.BytesIO(data_bytes),
+        mimetype="application/json",
+        as_attachment=True,
+        download_name=filename
+    )
+
+
+@app.route("/api/reports", methods=["GET"])
+@login_required
+def api_list_user_reports():
+    """Returns the list of exported reports owned by the authenticated user."""
+    try:
+        db_path = get_active_db_path()
+        reports = get_exported_reports_by_user(session["user_id"], limit=20, db_path=db_path)
+        return jsonify({"reports": reports}), 200
+    except Exception as exc:
+        logger.error("Failed to query user reports: %s", str(exc))
+        return jsonify({"error": "Unable to retrieve exported reports."}), 500
+
+
+@app.route("/api/storage/status", methods=["GET"])
+def api_storage_status():
+    """Returns live Azure Blob Storage connectivity and container status."""
+    return jsonify({"storage": check_blob_storage_health()}), 200
 
 
 # ---------------------------------------------------------------------------
@@ -819,19 +1203,37 @@ def health():
 # ---------------------------------------------------------------------------
 def setup_database_if_needed():
     """Ensures database is initialized and migrated on server startup."""
-    db_path = get_active_db_path()
-    if not os.path.exists(db_path):
-        logger.info("Database file not found at %s. Initializing from schema.sql...", db_path)
-        init_db(db_path=db_path)
+    mode = get_database_mode()
+    if mode == "sqlite":
+        db_path = get_active_db_path()
+        if not os.path.exists(db_path):
+            logger.info("Database file not found at %s. Initializing from schema.sql...", db_path)
+            init_db(db_path=db_path)
+            try:
+                if not get_user_by_email("admin@trustmesh.test", db_path=db_path):
+                    create_user(
+                        display_name="System Administrator",
+                        email="admin@trustmesh.test",
+                        password_hash=generate_password_hash("Password123!"),
+                        role_id=2,
+                        account_status="ACTIVE",
+                        db_path=db_path
+                    )
+                    logger.info("Auto-seeded default administrator account: admin@trustmesh.test")
+            except Exception as seed_err:
+                logger.warning("Could not auto-seed admin account: %s", str(seed_err))
+        else:
+            # Run safe migration check on existing database
+            from database import migrate_db
+            migrate_db(db_path=db_path)
     else:
-        # Run safe migration check on existing database
-        from database import migrate_db
-        migrate_db(db_path=db_path)
+        logger.info("Server started in Azure SQL Cloud Mode (DATABASE_MODE=%s). Skipping local SQLite migration.", mode)
 
 
 setup_database_if_needed()
 
 
 if __name__ == "__main__":
-    # Local development server only
-    app.run(host="127.0.0.1", port=5000, debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    debug_mode = app.config.get("DEBUG", False)
+    app.run(host="0.0.0.0", port=port, debug=debug_mode)

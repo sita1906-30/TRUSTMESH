@@ -63,6 +63,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalSignalsList = document.getElementById('modal-signals-list');
     const modalRecommendation = document.getElementById('modal-recommendation');
 
+    // Export Report Elements (Phase 4, Task 3: Azure Blob Storage)
+    const exportReportBtn = document.getElementById('export-report-btn');
+    const saveToCloudCheckbox = document.getElementById('save-to-cloud-checkbox');
+    const exportStatusBanner = document.getElementById('export-status-banner');
+    const exportStatusText = document.getElementById('export-status-text');
+    const modalExportBtn = document.getElementById('modal-export-btn');
+
+    let currentAssessmentId = null;
+    let modalActiveAssessmentId = null;
+
     // Viva Demo Sample Inputs
     const SAMPLE_INPUTS = {
         'urgent-fee': 'URGENT! Pay the registration fee immediately to claim your prize.',
@@ -217,7 +227,11 @@ document.addEventListener('DOMContentLoaded', () => {
         recommendationText.textContent = recommendation;
         disclaimerText.textContent = disclaimer;
 
-        // 7. Reveal Results Section and Smooth Scroll
+        // 7. Store active assessment ID for export & reset status
+        currentAssessmentId = data.assessment_id || null;
+        if (exportStatusBanner) exportStatusBanner.hidden = true;
+
+        // 8. Reveal Results Section and Smooth Scroll
         resultsSection.hidden = false;
         resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
@@ -245,6 +259,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function openSignalInspection(item) {
         if (!signalModal) return;
 
+        modalActiveAssessmentId = item.assessment_id || null;
         modalIncidentTag.textContent = `Incident #${item.incident_id}`;
         modalRiskScore.textContent = `${item.risk_score} / 100`;
         modalRiskLevel.textContent = item.risk_level;
@@ -487,12 +502,114 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * Refreshes both history and analytics.
+     * Refreshes both history and analytics, and updates live database connection status.
      */
+    async function updateDbStatus() {
+        try {
+            const res = await fetch('/health');
+            if (res.ok) {
+                const data = await res.json();
+                const badgeText = document.getElementById('db-status-text');
+                const badgeContainer = document.getElementById('db-status-badge');
+                const pulse = badgeContainer ? badgeContainer.querySelector('.status-pulse') : null;
+                if (badgeText && data.database_status_indicator) {
+                    badgeText.textContent = data.database_status_indicator;
+                }
+                if (badgeContainer && data.database_details) {
+                    badgeContainer.title = data.database_details;
+                }
+                if (pulse) {
+                    pulse.className = 'status-pulse';
+                    if (data.status !== 'healthy') {
+                        pulse.classList.add('status-pulse-offline');
+                    } else if (data.is_cloud) {
+                        pulse.classList.add('status-pulse-cloud');
+                    }
+                }
+            }
+        } catch {
+            // Non-blocking background telemetry update
+        }
+    }
+
     async function refreshDashboard() {
         setRefreshLoading(true);
-        await Promise.allSettled([fetchHistory(), fetchAnalytics()]);
+        await Promise.allSettled([fetchHistory(), fetchAnalytics(), updateDbStatus()]);
         setRefreshLoading(false);
+    }
+
+    // -----------------------------------------------------------------------
+    // Phase 4, Task 3: Export Report & Azure Blob Storage Handlers
+    // -----------------------------------------------------------------------
+
+    function showExportStatus(message, type = 'success') {
+        if (!exportStatusBanner || !exportStatusText) return;
+        exportStatusText.textContent = message;
+        exportStatusBanner.className = 'export-status-banner';
+        if (type === 'warning') exportStatusBanner.classList.add('status-warning');
+        if (type === 'error') exportStatusBanner.classList.add('status-error');
+        exportStatusBanner.hidden = false;
+    }
+
+    function hideExportStatus() {
+        if (exportStatusBanner) exportStatusBanner.hidden = true;
+    }
+
+    async function handleExportReport(assessmentId, saveToCloud) {
+        if (!assessmentId) {
+            showError('Unable to export: Assessment ID is missing. Please run an analysis first.');
+            return;
+        }
+
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        const reqHeaders = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        };
+        if (csrfToken) reqHeaders['X-CSRFToken'] = csrfToken;
+
+        showExportStatus('Preparing assessment report...', 'info');
+
+        try {
+            const response = await fetch('/api/reports/export', {
+                method: 'POST',
+                headers: reqHeaders,
+                body: JSON.stringify({
+                    assessment_id: assessmentId,
+                    save_to_cloud: Boolean(saveToCloud)
+                })
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+                if (response.status === 401) {
+                    showExportStatus('Please sign in to export and download assessment reports.', 'warning');
+                } else {
+                    showExportStatus(data.error || 'Export request failed.', 'error');
+                }
+                return;
+            }
+
+            // Trigger local download of formatted JSON
+            if (data.report_data) {
+                const blob = new Blob([JSON.stringify(data.report_data, null, 2)], { type: 'application/json' });
+                const downloadUrl = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                a.download = `trustmesh_report_asm_${assessmentId}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(downloadUrl);
+            }
+
+            const bannerType = data.storage_status === 'UPLOADED' ? 'success' : (saveToCloud ? 'warning' : 'success');
+            showExportStatus(data.message || 'Report exported successfully.', bannerType);
+
+        } catch (netErr) {
+            console.error('Export network error:', netErr);
+            showExportStatus('Unable to reach the report export service. Check backend connectivity.', 'error');
+        }
     }
 
     // -----------------------------------------------------------------------
@@ -551,6 +668,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     signalModal.removeAttribute('open');
                 }
             }
+        });
+    }
+
+    // Export assessment report buttons
+    if (exportReportBtn) {
+        exportReportBtn.addEventListener('click', () => {
+            const saveToCloud = saveToCloudCheckbox ? saveToCloudCheckbox.checked : false;
+            handleExportReport(currentAssessmentId, saveToCloud);
+        });
+    }
+
+    if (modalExportBtn) {
+        modalExportBtn.addEventListener('click', () => {
+            handleExportReport(modalActiveAssessmentId, false);
         });
     }
 
