@@ -226,6 +226,8 @@ SPOOFED_BRANDS = [
 
 def get_active_db_path() -> str:
     """Returns the configured or default database file path."""
+    if os.environ.get("VERCEL") or os.environ.get("VERCEL_ENV") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"):
+        return DEFAULT_DB_PATH
     return app.config.get("DATABASE_PATH") or os.environ.get("DATABASE_PATH") or DEFAULT_DB_PATH
 
 

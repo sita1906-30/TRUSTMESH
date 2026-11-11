@@ -12,7 +12,9 @@ import hashlib
 import logging
 import os
 import re
+import shutil
 import sqlite3
+import tempfile
 from typing import Any, Dict, List, Optional, Tuple
 
 # Load environment configuration if python-dotenv is available
@@ -24,11 +26,17 @@ except ImportError:
 
 logger = logging.getLogger("trustmesh.database")
 
-# Default paths for local SQLite storage (handles Vercel /tmp read-only filesystem)
+# Default paths for local SQLite storage (handles Vercel / Lambda serverless environment)
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-if os.environ.get("VERCEL"):
-    DEFAULT_INSTANCE_DIR = "/tmp"
-    DEFAULT_DB_PATH = "/tmp/trustmesh.db"
+if os.environ.get("VERCEL") or os.environ.get("VERCEL_ENV") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"):
+    DEFAULT_INSTANCE_DIR = tempfile.gettempdir()
+    DEFAULT_DB_PATH = os.path.join(tempfile.gettempdir(), "trustmesh.db")
+    src_db = os.path.join(BASE_DIR, "instance", "trustmesh.db")
+    if os.path.exists(src_db) and not os.path.exists(DEFAULT_DB_PATH):
+        try:
+            shutil.copy2(src_db, DEFAULT_DB_PATH)
+        except Exception:
+            pass
 else:
     DEFAULT_INSTANCE_DIR = os.path.join(BASE_DIR, "instance")
     DEFAULT_DB_PATH = os.path.join(DEFAULT_INSTANCE_DIR, "trustmesh.db")
@@ -88,6 +96,8 @@ def get_active_sqlite_path(db_path: Optional[str] = None) -> str:
     """Returns the effective path for SQLite database operations."""
     if db_path:
         return db_path
+    if os.environ.get("VERCEL") or os.environ.get("VERCEL_ENV") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"):
+        return DEFAULT_DB_PATH
     return os.environ.get("DATABASE_PATH", DEFAULT_DB_PATH)
 
 
@@ -102,7 +112,12 @@ def get_sqlite_connection(target_path: str) -> sqlite3.Connection:
     2. Row factory set to sqlite3.Row for dictionary-like column access.
     """
     if target_path != ":memory:":
-        os.makedirs(os.path.dirname(os.path.abspath(target_path)), exist_ok=True)
+        target_dir = os.path.dirname(os.path.abspath(target_path))
+        if target_dir:
+            try:
+                os.makedirs(target_dir, exist_ok=True)
+            except Exception:
+                pass
 
     conn = sqlite3.connect(target_path)
     conn.row_factory = sqlite3.Row

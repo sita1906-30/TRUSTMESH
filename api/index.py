@@ -9,5 +9,6 @@ if parent_dir not in sys.path:
 
 from app import app
 
-# Vercel entrypoint handler
+# Vercel entrypoint handlers (both app and handler for maximum runtime compatibility)
 app = app
+handler = app
